@@ -105,4 +105,25 @@ class UTF8ProcTest < Minitest::Test
       ::UTF8Proc.normalize(@unicode_string, :foo)
     end
   end
+
+  # Test against Unicode 9.0 Normalization Data
+
+  def test_normalization_data
+    File.open(File.join(__dir__, "NormalizationTest.txt"), "r") do |file|
+      file.each_line do |line|
+        next if line.match?(/^(?:\#|\@)/)
+        tests = line.split("\#").first
+        tests.strip!
+        tests_str = tests.split(";").map! do |test|
+          test.gsub(/\s?[A-F0-9]{4,6}\s?/) do |m|
+            eval(%("\\u{#{m.strip}}"))
+          end
+        end
+        assert_equal ::UTF8Proc.to_NFC(tests_str[0]), tests_str[1]
+        assert_equal ::UTF8Proc.to_NFD(tests_str[0]), tests_str[2]
+        assert_equal ::UTF8Proc.to_NFKC(tests_str[0]), tests_str[3]
+        assert_equal ::UTF8Proc.to_NFKD(tests_str[0]), tests_str[4]
+      end
+    end
+  end
 end
