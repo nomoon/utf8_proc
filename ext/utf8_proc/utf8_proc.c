@@ -16,42 +16,66 @@ void checkStrEncoding(VALUE *string) {
 }
 
 VALUE CtoNFC(VALUE self, VALUE string) {
-  utf8proc_uint8_t *retval;
   checkStrEncoding(&string);
-  utf8proc_map((unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-               UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+  utf8proc_uint8_t *retval;
+  utf8proc_ssize_t retlen = utf8proc_map(
+    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
+    UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 
-  return rb_enc_str_new((char *) retval, strlen((char *)retval), rb_utf8_encoding());
+  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
+  free(retval);
+
+  return new_str;
 }
 
 VALUE CtoNFD(VALUE self, VALUE string) {
-  utf8proc_uint8_t *retval;
   checkStrEncoding(&string);
-  utf8proc_map((unsigned char *) StringValuePtr(string), RSTRING_LEN(string),
-               &retval, UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+  utf8proc_uint8_t *retval;
+  utf8proc_ssize_t retlen = utf8proc_map(
+    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
+    UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 
-  return rb_enc_str_new((char *) retval, strlen((char *)retval), rb_utf8_encoding());
+  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
+  free(retval);
+
+  return new_str;
 }
 
 VALUE CtoNFKC(VALUE self, VALUE string) {
-  utf8proc_uint8_t *retval;
   checkStrEncoding(&string);
-  utf8proc_map((unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-               UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+  utf8proc_uint8_t *retval;
+  utf8proc_ssize_t retlen = utf8proc_map(
+    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
+    UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 
-  return rb_enc_str_new((char *) retval, strlen((char *)retval), rb_utf8_encoding());
+  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
+  free(retval);
+
+  return new_str;
 }
 
 VALUE CtoNFKD(VALUE self, VALUE string) {
-  utf8proc_uint8_t *retval;
   checkStrEncoding(&string);
-  utf8proc_map((unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-               UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+  utf8proc_uint8_t *retval;
+  utf8proc_ssize_t retlen = utf8proc_map(
+    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
+    UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 
-  return rb_enc_str_new((char *) retval, strlen((char *)retval), rb_utf8_encoding());
+  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
+  free(retval);
+
+  return new_str;
 }
 
-VALUE Cnorm(VALUE self, VALUE form, VALUE string){
+VALUE Cnorm(int argc, VALUE* argv, VALUE self){
+  VALUE string;
+  VALUE form;
+  rb_scan_args(argc, argv, "11", &string, &form);
+
+  if (NIL_P(form)) {
+    return CtoNFC(self, string);
+  }
+
   ID s_form = SYM2ID(form);
   if (s_form == NFC) {
     return CtoNFC(self, string);
@@ -63,7 +87,7 @@ VALUE Cnorm(VALUE self, VALUE form, VALUE string){
     return CtoNFKD(self, string);
   }else{
     rb_raise(rb_eRuntimeError, "%s",
-             "First argument must be one of [:nfc, :nfd, :nfkc, :nfkd]");
+             "Second optional argument must be one of [:nfc, :nfd, :nfkc, :nfkd] (defaults to :nfc)");
   }
 }
 
@@ -82,5 +106,5 @@ void Init_utf8_proc(void) {
   rb_define_singleton_method(rb_mBase, "to_NFD", CtoNFD, 1);
   rb_define_singleton_method(rb_mBase, "to_NFKC", CtoNFKC, 1);
   rb_define_singleton_method(rb_mBase, "to_NFKD", CtoNFKD, 1);
-  rb_define_singleton_method(rb_mBase, "normalize", Cnorm, 2);
+  rb_define_singleton_method(rb_mBase, "normalize", Cnorm, -1);
 }

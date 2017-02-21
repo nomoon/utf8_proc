@@ -7,7 +7,7 @@ class UTF8ProcTest < Minitest::Test
     @encoding_error = ::RuntimeError
     @encoding_error_msg = "String must be in UTF-8 or US-ASCII encoding."
     @form_error = ::RuntimeError
-    @form_error_msg = "First argument must be one of [:nfc, :nfd, :nfkc, :nfkd]"
+    @form_error_msg = "Second optional argument must be one of [:nfc, :nfd, :nfkc, :nfkd] (defaults to :nfc)"
   end
 
   def test_that_it_has_a_version_number
@@ -80,25 +80,29 @@ class UTF8ProcTest < Minitest::Test
 
   # Normalizer
 
+  def test_to_norm_default_result
+    assert_equal ::UTF8Proc.normalize(@unicode_string).codepoints, [7835, 803]
+  end
+
   def test_to_norm_nfc_result
-    assert_equal ::UTF8Proc.normalize(:nfc, @unicode_string).codepoints, [7835, 803]
+    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfc).codepoints, [7835, 803]
   end
 
   def test_to_norm_nfd_result
-    assert_equal ::UTF8Proc.normalize(:nfd, @unicode_string).codepoints, [383, 803, 775]
+    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfd).codepoints, [383, 803, 775]
   end
 
   def test_to_norm_nfkc_result
-    assert_equal ::UTF8Proc.normalize(:nfkc, @unicode_string).codepoints, [7785]
+    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfkc).codepoints, [7785]
   end
 
   def test_to_norm_nfkd_result
-    assert_equal ::UTF8Proc.normalize(:nfkd, @unicode_string).codepoints, [115, 803, 775]
+    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfkd).codepoints, [115, 803, 775]
   end
 
   def test_to_norm_error
     assert_have_error(@form_error_msg, @form_error) do
-      ::UTF8Proc.normalize(:foo, @unicode_string)
+      ::UTF8Proc.normalize(@unicode_string, :foo)
     end
   end
 end
