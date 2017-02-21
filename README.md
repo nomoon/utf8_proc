@@ -1,8 +1,12 @@
 # UTF8Proc
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/utf8_proc`. To experiment with that code, run `bin/console` for an interactive prompt.
+A simple wrapper around [utf8proc](https://github.com/JuliaLang/utf8proc) for normalizing Unicode strings. Requires the `utf8proc` library and headers to be installed on your system. *(Packages are available. OSX: `brew install utf8proc`, Linux: `libutf8proc-dev` or `utf8proc-devel`)*
 
-TODO: Delete this and the text above, and describe your gem
+Currently supports UTF-8/ASCII string input and NFC, NFD, NFKC, NFKD, and NKFC-Casefold forms. Handles Unicode 9.0 and includes the current official full suite of 9.0 normalization tests.
+
+Quick benchmarks against the [UNF](https://github.com/knu/ruby-unf) gem show it to be between the same speed (best-case) and ~2x slower (worst-case), averaging about ~1.2x slower on complex Unicode strings. The speed difference is more equal in NFC/NFD modes where mostly or already-normalized strings are used.
+
+*(Note: UNF is generally a bit faster but currently officially supports Unicode 6.0 and does not pass all 9.0 normalization tests.)*
 
 ## Installation
 
@@ -22,13 +26,27 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require "utf8_proc"
 
-## Development
+# Canonical Decomposition, followed by Canonical Composition
+UTF8Proc.NFC(utf8_string)
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+# Canonical Decomposition
+UTF8Proc.NFD(utf8_string)
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+# Compatibility Decomposition, followed by Canonical Composition
+UTF8Proc.NFKC(utf8_string)
+
+# Compatibility Decomposition
+UTF8Proc.NFKD(utf8_string)
+
+# Compatibility Decomposition, followed by Canonical Composition with Case-folding
+UTF8Proc.NFKC_CF(utf8_string)
+
+# Second argument may be any of: [:nfc (default), :nfd, :nfkc, :nfkd, :nfkc_cf]
+UTF8Proc.normalize(utf8_string, form = :nfc)
+```
 
 ## Contributing
 

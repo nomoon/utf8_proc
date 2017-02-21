@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Tim Bellefleur"]
   spec.email         = ["nomoon@phoebus.ca"]
 
-  spec.summary       = "Ruby Unicode library using utf8proc"
+  spec.summary       = "Unicode normalization library using utf8proc"
   spec.homepage      = "https://github.com/nomoon/utf8_proc"
   spec.license       = "MIT"
 
