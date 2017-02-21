@@ -7,6 +7,7 @@ ID NFC;
 ID NFD;
 ID NFKC;
 ID NFKD;
+ID NFKC_CF;
 
 static inline void checkStrEncoding(VALUE *string) {
   rb_encoding *enc = rb_enc_get(*string);
@@ -15,7 +16,7 @@ static inline void checkStrEncoding(VALUE *string) {
   }
 }
 
-static inline VALUE CnormInternal(VALUE string, utf8proc_option_t options) {
+static inline VALUE normInternal(VALUE string, utf8proc_option_t options) {
   checkStrEncoding(&string);
   utf8proc_uint8_t *retval;
   utf8proc_ssize_t retlen = utf8proc_map(
@@ -28,43 +29,50 @@ static inline VALUE CnormInternal(VALUE string, utf8proc_option_t options) {
 }
 
 
-VALUE CtoNFC(VALUE self, VALUE string) {
-  return CnormInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+VALUE toNFC(VALUE self, VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
-VALUE CtoNFD(VALUE self, VALUE string) {
-  return CnormInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+VALUE toNFD(VALUE self, VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
-VALUE CtoNFKC(VALUE self, VALUE string) {
-  return CnormInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+VALUE toNFKC(VALUE self, VALUE string) {
+  return normInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
-VALUE CtoNFKD(VALUE self, VALUE string) {
-  return CnormInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+VALUE toNFKD(VALUE self, VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
-VALUE Cnorm(int argc, VALUE* argv, VALUE self){
+VALUE toNFKC_CF(VALUE self, VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+}
+
+
+VALUE norm(int argc, VALUE* argv, VALUE self){
   VALUE string;
   VALUE form;
   rb_scan_args(argc, argv, "11", &string, &form);
 
   if (NIL_P(form)) {
-    return CtoNFC(self, string);
+    return toNFC(self, string);
   }
 
   ID s_form = SYM2ID(form);
   if (s_form == NFC) {
-    return CtoNFC(self, string);
+    return toNFC(self, string);
   }else if(s_form == NFD) {
-    return CtoNFD(self, string);
+    return toNFD(self, string);
   }else if(s_form == NFKC) {
-    return CtoNFKC(self, string);
+    return toNFKC(self, string);
   }else if(s_form == NFKD) {
-    return CtoNFKD(self, string);
+    return toNFKD(self, string);
+  }else if(s_form == NFKC_CF) {
+    return toNFKC_CF(self, string);
   }else{
     rb_raise(rb_eRuntimeError, "%s",
-             "Second optional argument must be one of [:nfc, :nfd, :nfkc, :nfkd] (defaults to :nfc)");
+             "Second optional argument must be one of [:nfc, :nfd, :nfkc, :nfkd, :nfkc_cf] (defaults to :nfc)");
   }
 }
 
@@ -78,10 +86,12 @@ void Init_utf8_proc(void) {
   NFD = rb_intern("nfd");
   NFKC = rb_intern("nfkc");
   NFKD = rb_intern("nfkd");
+  NFKC_CF = rb_intern("nfkc_cf");
 
-  rb_define_singleton_method(rb_mBase, "to_NFC", CtoNFC, 1);
-  rb_define_singleton_method(rb_mBase, "to_NFD", CtoNFD, 1);
-  rb_define_singleton_method(rb_mBase, "to_NFKC", CtoNFKC, 1);
-  rb_define_singleton_method(rb_mBase, "to_NFKD", CtoNFKD, 1);
-  rb_define_singleton_method(rb_mBase, "normalize", Cnorm, -1);
+  rb_define_singleton_method(rb_mBase, "NFC", toNFC, 1);
+  rb_define_singleton_method(rb_mBase, "NFD", toNFD, 1);
+  rb_define_singleton_method(rb_mBase, "NFKC", toNFKC, 1);
+  rb_define_singleton_method(rb_mBase, "NFKD", toNFKD, 1);
+  rb_define_singleton_method(rb_mBase, "NFKC_CF", toNFKC_CF, 1);
+  rb_define_singleton_method(rb_mBase, "normalize", norm, -1);
 }
