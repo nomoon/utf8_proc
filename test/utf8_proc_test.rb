@@ -129,21 +129,45 @@ class UTF8ProcTest < Minitest::Test
   # Test against Unicode 9.0 Normalization Data
 
   def test_normalization_data
+    i = 0
     File.open(File.join(__dir__, "NormalizationTest.txt"), "r") do |file|
       file.each_line do |line|
+        # Skip line if it's only a comment or header
         next if line.match?(/^(?:\#|\@)/)
-        tests = line.split("\#").first
-        tests.strip!
-        tests_str = tests.split(";").map! do |test|
-          test.gsub(/\s?[A-F0-9]{4,6}\s?/) do |m|
-            eval(%("\\u{#{m.strip}}")) # rubocop:disable Eval
+
+        # Determine where the comment portion of the line starts, and split.
+        split_point = line.index(" # ")
+        tests = line[0..split_point]
+        comment = line[(split_point + 3)..-1]
+
+        # Break comment portion into listed chars and description
+        desc_chars, description = comment.split(/(?<=[\)])\s/)
+
+        # Trim/split description characters and remove illustrative circles.
+        desc_chars = desc_chars.gsub!(/^\(|\u{25CC}|\)$/, "").split(/;\s/)
+
+        # Unescape test sequences into unicode characters.
+        tests = tests.split(/;\s?/).map! do |test|
+          test.gsub!(/([\h]{4,6}\s?)+/) do |m|
+            eval(%("\\u{#{m}}")) # rubocop:disable Eval
           end
         end
-        assert_equal ::UTF8Proc.to_NFC(tests_str[0]), tests_str[1]
-        assert_equal ::UTF8Proc.to_NFD(tests_str[0]), tests_str[2]
-        assert_equal ::UTF8Proc.to_NFKC(tests_str[0]), tests_str[3]
-        assert_equal ::UTF8Proc.to_NFKD(tests_str[0]), tests_str[4]
+
+        # Be verbose maybe.
+        if $DEBUG
+          tputs(description, STDERR)
+          tputs(desc_chars.inspect, STDERR)
+        end
+
+        # Ensure unescaped characters match description characters
+        assert_equal tests, desc_chars
+        assert_equal ::UTF8Proc.NFC(tests[0]), tests[1]
+        assert_equal ::UTF8Proc.NFD(tests[0]), tests[2]
+        assert_equal ::UTF8Proc.NFKC(tests[0]), tests[3]
+        assert_equal ::UTF8Proc.NFKD(tests[0]), tests[4]
+        i += 1
       end
+      STDERR.print("(#{i} normalizations tested)") if $VERBOSE
     end
   end
 end
