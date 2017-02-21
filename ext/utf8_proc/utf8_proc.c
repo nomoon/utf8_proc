@@ -8,63 +8,40 @@ ID NFD;
 ID NFKC;
 ID NFKD;
 
-void checkStrEncoding(VALUE *string) {
+static inline void checkStrEncoding(VALUE *string) {
   rb_encoding *enc = rb_enc_get(*string);
   if (enc != enc_utf8 && enc != enc_usascii) {
     rb_raise(rb_eRuntimeError, "%s", "String must be in UTF-8 or US-ASCII encoding.");
   }
 }
 
-VALUE CtoNFC(VALUE self, VALUE string) {
+static inline VALUE CnormInternal(VALUE string, utf8proc_option_t options) {
   checkStrEncoding(&string);
   utf8proc_uint8_t *retval;
   utf8proc_ssize_t retlen = utf8proc_map(
-    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-    UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval, options);
 
   VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
   free(retval);
 
   return new_str;
+}
+
+
+VALUE CtoNFC(VALUE self, VALUE string) {
+  return CnormInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
 VALUE CtoNFD(VALUE self, VALUE string) {
-  checkStrEncoding(&string);
-  utf8proc_uint8_t *retval;
-  utf8proc_ssize_t retlen = utf8proc_map(
-    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-    UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
-
-  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
-  free(retval);
-
-  return new_str;
+  return CnormInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
 VALUE CtoNFKC(VALUE self, VALUE string) {
-  checkStrEncoding(&string);
-  utf8proc_uint8_t *retval;
-  utf8proc_ssize_t retlen = utf8proc_map(
-    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-    UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
-
-  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
-  free(retval);
-
-  return new_str;
+  return CnormInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
 VALUE CtoNFKD(VALUE self, VALUE string) {
-  checkStrEncoding(&string);
-  utf8proc_uint8_t *retval;
-  utf8proc_ssize_t retlen = utf8proc_map(
-    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval,
-    UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
-
-  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
-  free(retval);
-
-  return new_str;
+  return CnormInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
 VALUE Cnorm(int argc, VALUE* argv, VALUE self){

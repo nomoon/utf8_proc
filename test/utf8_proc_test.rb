@@ -116,7 +116,7 @@ class UTF8ProcTest < Minitest::Test
         tests.strip!
         tests_str = tests.split(";").map! do |test|
           test.gsub(/\s?[A-F0-9]{4,6}\s?/) do |m|
-            eval(%("\\u{#{m.strip}}"))
+            eval(%("\\u{#{m.strip}}")) # rubocop:disable Eval
           end
         end
         assert_equal ::UTF8Proc.to_NFC(tests_str[0]), tests_str[1]
