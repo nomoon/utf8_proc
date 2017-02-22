@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "mkmf"
 
-pkg_config("utf8proc", "--cflags-only-I --libs-only-L")
+pkg_config("utf8proc")
 
 have_library("utf8proc") || abort("This extension requires the utf8proc library.")
 
