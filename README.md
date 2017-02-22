@@ -49,6 +49,9 @@ UTF8Proc.NFKC_CF(utf8_string)
 
 # Second argument may be any of: [:nfc (default), :nfd, :nfkc, :nfkd, :nfkc_cf]
 UTF8Proc.normalize(utf8_string, form = :nfc)
+
+# Version string of loaded libutf8proc
+UTF8Proc::LIBRARY_VERSION
 ```
 
 ## Contributing

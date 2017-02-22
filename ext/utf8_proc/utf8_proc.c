@@ -88,6 +88,11 @@ void Init_utf8_proc(void) {
   NFKD = rb_intern("nfkd");
   NFKC_CF = rb_intern("nfkc_cf");
 
+  const char *libVersion = utf8proc_version();
+  rb_define_const(rb_mBase, "LIBRARY_VERSION", rb_str_freeze(
+    rb_enc_str_new(libVersion, strlen(libVersion), enc_utf8)
+  ));
+
   rb_define_singleton_method(rb_mBase, "NFC", toNFC, 1);
   rb_define_singleton_method(rb_mBase, "NFD", toNFD, 1);
   rb_define_singleton_method(rb_mBase, "NFKC", toNFKC, 1);
