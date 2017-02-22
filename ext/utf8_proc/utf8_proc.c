@@ -25,7 +25,8 @@ static inline VALUE normInternal(VALUE string, utf8proc_option_t options) {
     (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval, options
   );
 
-  VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
+  VALUE new_str;
+  new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
   free(retval);
 
   return new_str;
@@ -82,7 +83,8 @@ VALUE norm(int argc, VALUE* argv, VALUE self){
 }
 
 void Init_utf8_proc(void) {
-  VALUE rb_mBase = rb_define_module("UTF8Proc");
+  VALUE rb_mBase;
+  rb_mBase = rb_define_module("UTF8Proc");
 
   enc_utf8 = rb_utf8_encoding();
   enc_usascii = rb_usascii_encoding();

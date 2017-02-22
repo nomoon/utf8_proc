@@ -2,7 +2,7 @@
 # rubocop:disable GlobalVars
 require "mkmf"
 
-$CFLAGS << " -std=c99 -Wno-unknown-warning -Wno-unknown-warning-option"
+$CFLAGS << " -std=c99 -Wno-declaration-after-statement"
 
 pkg_config("utf8proc")
 
