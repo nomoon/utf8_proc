@@ -14,11 +14,11 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/nomoon/utf8_proc"
   spec.license       = "MIT"
 
+  spec.required_ruby_version = ">= 2.0"
+
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
   spec.extensions    = ["ext/utf8_proc/extconf.rb"]
 
@@ -27,5 +27,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry", "~> 0.10"
   spec.add_development_dependency "rake-compiler", "~> 1.0"
   spec.add_development_dependency "minitest", "~> 5.10"
-  spec.add_development_dependency "minitest-assert_errors"
 end
