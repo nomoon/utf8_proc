@@ -16,7 +16,11 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_that_it_has_a_version_number
-    refute_nil ::UTF8Proc::VERSION
+    refute_empty ::UTF8Proc::VERSION
+  end
+
+  def test_that_it_has_a_library_version_number
+    refute_empty ::UTF8Proc::LIBRARY_VERSION
   end
 
   # NFC

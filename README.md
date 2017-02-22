@@ -1,5 +1,6 @@
 # UTF8Proc
 
+[![Build Status](https://travis-ci.org/nomoon/utf8_proc.svg?branch=master)](https://travis-ci.org/nomoon/utf8_proc)
 [![Dependency Status](https://gemnasium.com/badges/github.com/nomoon/utf8_proc.svg)](https://gemnasium.com/github.com/nomoon/utf8_proc)
 [![Gem Version](https://badge.fury.io/rb/utf8_proc.svg)](https://badge.fury.io/rb/utf8_proc)
 
@@ -49,6 +50,9 @@ UTF8Proc.NFKC_CF(utf8_string)
 
 # Second argument may be any of: [:nfc (default), :nfd, :nfkc, :nfkd, :nfkc_cf]
 UTF8Proc.normalize(utf8_string, form = :nfc)
+
+# Version string of loaded libutf8proc
+UTF8Proc::LIBRARY_VERSION
 ```
 
 ## Contributing

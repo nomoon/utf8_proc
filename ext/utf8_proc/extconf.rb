@@ -1,5 +1,8 @@
 # frozen_string_literal: true
+# rubocop:disable GlobalVars
 require "mkmf"
+
+$CFLAGS << " -std=c99 -Wno-declaration-after-statement"
 
 pkg_config("utf8proc")
 
