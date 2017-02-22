@@ -55,6 +55,8 @@ UTF8Proc.normalize(utf8_string, form = :nfc)
 UTF8Proc::LIBRARY_VERSION
 ```
 
+(Like `unf`) on JRuby the gem will fall-back to using `java.text.normalizer`. The interface remains the same.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/nomoon/utf8_proc. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
