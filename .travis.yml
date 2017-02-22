@@ -7,6 +7,7 @@ rvm:
   - 2.2.6
   - 2.1.10
   - 2.0.0
+  - 1.9.3
 before_install:
   - wget -O utf8proc.zip https://github.com/JuliaLang/utf8proc/archive/v2.1.0.zip
   - unzip utf8proc.zip

@@ -139,7 +139,8 @@ class UTF8ProcTest < Minitest::Test
 
   def test_normalization_data
     i = 0
-    File.open(File.join(__dir__, "NormalizationTest.txt"), "r") do |file|
+    normalization_file = File.join(File.dirname(__FILE__), "NormalizationTest.txt")
+    File.open(normalization_file, "r") do |file|
       file.each_line do |line|
         # Skip line if it's only a comment or header
         next if line =~ /^(?:\#|\@)/

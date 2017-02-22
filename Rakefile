@@ -16,4 +16,4 @@ Rake::ExtensionTask.new("utf8_proc") do |ext|
   ext.lib_dir = "lib/utf8_proc"
 end
 
-task default: %i[clobber compile test]
+task default: [:clobber, :compile, :test]
