@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 require "bundler/gem_tasks"
+require "rubocop/rake_task"
 require "rake/testtask"
+
+RuboCop::RakeTask.new
 
 Rake::TestTask.new(:test) do |t|
   t.libs << "test"
@@ -9,7 +12,7 @@ Rake::TestTask.new(:test) do |t|
 end
 
 if defined?(JRUBY_VERSION)
-  task default: :test
+  task default: %i[rubocop test]
 else
   require "rake/extensiontask"
 
@@ -19,5 +22,5 @@ else
     ext.lib_dir = "lib/utf8_proc"
   end
 
-  task default: %i[clobber compile test]
+  task default: %i[rubocop clobber compile test]
 end
