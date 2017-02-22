@@ -12,7 +12,7 @@ ID NFKC_CF;
 static inline void checkStrEncoding(VALUE *string) {
   rb_encoding *enc = rb_enc_get(*string);
   if (enc != enc_utf8 && enc != enc_usascii) {
-    rb_raise(rb_eRuntimeError, "%s", "String must be in UTF-8 or US-ASCII encoding.");
+    rb_raise(rb_eEncodingError, "%s", "String must be in UTF-8 or US-ASCII encoding.");
   }
 }
 
@@ -71,11 +71,11 @@ VALUE norm(int argc, VALUE* argv, VALUE self){
   }else if(s_form == NFKC_CF) {
     return toNFKC_CF(self, string);
   }else{
-    rb_raise(rb_eRuntimeError, "%s",
-             "Second optional argument must be one of [:nfc, :nfd, :nfkc, :nfkd, :nfkc_cf] (defaults to :nfc)");
+    rb_raise(rb_eArgError, "%s",
+             "Second argument must be one of [:nfc (default), :nfd, :nfkc, " \
+             ":nfkd, :nfkc_cf]");
   }
 }
-
 
 void Init_utf8_proc(void) {
   VALUE rb_mBase = rb_define_module("UTF8Proc");

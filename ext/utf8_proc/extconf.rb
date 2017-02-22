@@ -1,8 +1,7 @@
 # frozen_string_literal: true
-# rubocop:disable GlobalVars
 require "mkmf"
 
-$CFLAGS << " -Wall"
+pkg_config("utf8proc")
 
 have_library("utf8proc") || abort("This extension requires the utf8proc library.")
 

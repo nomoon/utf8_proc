@@ -3,11 +3,16 @@ require "test_helper"
 
 class UTF8ProcTest < Minitest::Test
   def setup
-    @unicode_string = "\u1E9B\u0323".encode("UTF-8")
-    @encoding_error = ::RuntimeError
-    @encoding_error_msg = "String must be in UTF-8 or US-ASCII encoding."
-    @form_error = ::RuntimeError
-    @form_error_msg = "Second optional argument must be one of [:nfc, :nfd, :nfkc, :nfkd, :nfkc_cf] (defaults to :nfc)"
+    @unistr =        "\u1E9B\u0323"      .encode("UTF-8") # Also NFC
+    @unistr_nfd =    "\u017F\u0323\u0307".encode("UTF-8")
+    @unistr_nfkc =   "\u1E69"            .encode("UTF-8")
+    @unistr_nfkd =   "\u0073\u0323\u0307".encode("UTF-8")
+
+    @unistr_up =     "\u1E60\u0323"      .encode("UTF-8") # Non-normalized
+    @unistr_up_nfc = "\u1E68"            .encode("UTF-8")
+
+    @encoding_error = ::EncodingError
+    @form_error = ::ArgumentError
   end
 
   def test_that_it_has_a_version_number
@@ -17,112 +22,112 @@ class UTF8ProcTest < Minitest::Test
   # NFC
 
   def test_to_nfc_result
-    assert_equal ::UTF8Proc.NFC(@unicode_string).codepoints, [7835, 803]
+    assert_equal ::UTF8Proc.NFC(@unistr_up), @unistr_up_nfc
   end
 
   def test_to_nfc_encoding
-    assert_equal ::UTF8Proc.NFC(@unicode_string).encoding, Encoding::UTF_8
+    assert_equal ::UTF8Proc.NFC(@unistr_up).encoding, Encoding::UTF_8
   end
 
   def test_to_nfc_error
-    assert_have_error(@encoding_error_msg, @encoding_error) do
-      ::UTF8Proc.NFC(@unicode_string.encode("UTF-16"))
+    assert_raises(@encoding_error) do
+      ::UTF8Proc.NFC(@unistr_up.encode("UTF-16"))
     end
   end
 
   # NFD
 
   def test_to_nfd_result
-    assert_equal ::UTF8Proc.NFD(@unicode_string).codepoints, [383, 803, 775]
+    assert_equal ::UTF8Proc.NFD(@unistr), @unistr_nfd
   end
 
   def test_to_nfd_encoding
-    assert_equal ::UTF8Proc.NFD(@unicode_string).encoding, Encoding::UTF_8
+    assert_equal ::UTF8Proc.NFD(@unistr).encoding, Encoding::UTF_8
   end
 
   def test_to_nfd_error
-    assert_have_error(@encoding_error_msg, @encoding_error) do
-      ::UTF8Proc.NFD(@unicode_string.encode("UTF-16"))
+    assert_raises(@encoding_error) do
+      ::UTF8Proc.NFD(@unistr.encode("UTF-16"))
     end
   end
 
   # NFKC
 
   def test_to_nfkc_result
-    assert_equal ::UTF8Proc.NFKC(@unicode_string.upcase).codepoints, [7784]
+    assert_equal ::UTF8Proc.NFKC(@unistr), @unistr_nfkc
   end
 
   def test_to_nfkc_encoding
-    assert_equal ::UTF8Proc.NFKC(@unicode_string).encoding, Encoding::UTF_8
+    assert_equal ::UTF8Proc.NFKC(@unistr).encoding, Encoding::UTF_8
   end
 
   def test_to_nfkc_error
-    assert_have_error(@encoding_error_msg, @encoding_error) do
-      ::UTF8Proc.NFKC(@unicode_string.encode("UTF-16"))
+    assert_raises(@encoding_error) do
+      ::UTF8Proc.NFKC(@unistr.encode("UTF-16"))
     end
   end
 
   # NFKD
 
   def test_to_nfkd_result
-    assert_equal ::UTF8Proc.NFKD(@unicode_string).codepoints, [115, 803, 775]
+    assert_equal ::UTF8Proc.NFKD(@unistr), @unistr_nfkd
   end
 
   def test_to_nfkd_encoding
-    assert_equal ::UTF8Proc.NFKD(@unicode_string).encoding, Encoding::UTF_8
+    assert_equal ::UTF8Proc.NFKD(@unistr).encoding, Encoding::UTF_8
   end
 
   def test_to_nfkd_error
-    assert_have_error(@encoding_error_msg, @encoding_error) do
-      ::UTF8Proc.NFKD(@unicode_string.encode("UTF-16"))
+    assert_raises(@encoding_error) do
+      ::UTF8Proc.NFKD(@unistr.encode("UTF-16"))
     end
   end
 
   # NFKC_CF (Case-folding)
 
   def test_to_nfkc_cf_result
-    assert_equal ::UTF8Proc.NFKC_CF(@unicode_string.upcase).codepoints, [7785]
+    assert_equal ::UTF8Proc.NFKC_CF(@unistr_up), @unistr_nfkc
   end
 
   def test_to_nfkc_cf_encoding
-    assert_equal ::UTF8Proc.NFKC_CF(@unicode_string).encoding, Encoding::UTF_8
+    assert_equal ::UTF8Proc.NFKC_CF(@unistr_up).encoding, Encoding::UTF_8
   end
 
   def test_to_nfkc_cf_error
-    assert_have_error(@encoding_error_msg, @encoding_error) do
-      ::UTF8Proc.NFKC_CF(@unicode_string.encode("UTF-16"))
+    assert_raises(@encoding_error) do
+      ::UTF8Proc.NFKC_CF(@unistr_up.encode("UTF-16"))
     end
   end
 
   # Normalizer
 
   def test_to_norm_default_result
-    assert_equal ::UTF8Proc.normalize(@unicode_string).codepoints, [7835, 803]
+    assert_equal ::UTF8Proc.normalize(@unistr_up), @unistr_up_nfc
   end
 
   def test_to_norm_nfc_result
-    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfc).codepoints, [7835, 803]
+    assert_equal ::UTF8Proc.normalize(@unistr_up, :nfc), @unistr_up_nfc
   end
 
   def test_to_norm_nfd_result
-    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfd).codepoints, [383, 803, 775]
+    assert_equal ::UTF8Proc.normalize(@unistr, :nfd), @unistr_nfd
   end
 
   def test_to_norm_nfkc_result
-    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfkc).codepoints, [7785]
+    assert_equal ::UTF8Proc.normalize(@unistr, :nfkc), @unistr_nfkc
   end
 
   def test_to_norm_nfkd_result
-    assert_equal ::UTF8Proc.normalize(@unicode_string, :nfkd).codepoints, [115, 803, 775]
+    assert_equal ::UTF8Proc.normalize(@unistr, :nfkd), @unistr_nfkd
   end
 
   def test_to_norm_nfkc_cf_result
-    assert_equal ::UTF8Proc.normalize(@unicode_string.upcase, :nfkc_cf).codepoints, [7785]
+    assert_equal ::UTF8Proc.normalize(@unistr_up, :nfkc_cf), @unistr_nfkc
   end
 
   def test_to_norm_error
-    assert_have_error(@form_error_msg, @form_error) do
-      ::UTF8Proc.normalize(@unicode_string, :foo)
+    assert_raises(@form_error) do
+      ::UTF8Proc.normalize(@unistr, :foo)
     end
   end
 
@@ -133,7 +138,7 @@ class UTF8ProcTest < Minitest::Test
     File.open(File.join(__dir__, "NormalizationTest.txt"), "r") do |file|
       file.each_line do |line|
         # Skip line if it's only a comment or header
-        next if line.match?(/^(?:\#|\@)/)
+        next if line =~ /^(?:\#|\@)/
 
         # Determine where the comment portion of the line starts, and split.
         split_point = line.index(" # ")
