@@ -7,6 +7,13 @@ rvm:
   - 2.2.6
   - 2.1.10
   - 2.0.0
+  - ruby-head
+  - jruby-9.1.5.0
+  - jruby-head
+matrix:
+  allow_failures:
+  - rvm: ruby-head
+  - rvm: jruby-head
 before_install:
   - wget -O utf8proc.zip https://github.com/JuliaLang/utf8proc/archive/v2.1.0.zip
   - unzip utf8proc.zip
