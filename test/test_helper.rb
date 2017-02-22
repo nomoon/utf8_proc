@@ -3,9 +3,7 @@ $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "utf8_proc"
 
 require "io/console"
-
 require "minitest/autorun"
-require "minitest/assert_errors"
 
 def tputs(string, stream = STDOUT)
   winsize = ::IO.console.winsize
