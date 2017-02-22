@@ -1,5 +1,17 @@
-sudo: false
+dist: trusty
+sudo: required
 language: ruby
 rvm:
   - 2.4.0
-before_install: gem install bundler -v 1.14.4
+  - 2.3.3
+  - 2.2.6
+  - 2.1.10
+  - 2.0.0
+before_install:
+  - curl -o utf8proc-2.1.0.zip https://github.com/JuliaLang/utf8proc/archive/v2.1.0.zip
+  - tar xvf utf8proc-2.1.0.zip
+  - cd utf8proc-2.1.0
+  - sudo make install
+  - cd ..
+  - gem install bundler -v 1.14.4
+script: bundle exec rake
