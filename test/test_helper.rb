@@ -7,9 +7,8 @@ require "minitest/autorun"
 
 def tputs(string, stream = STDOUT)
   winsize = ::IO.console.winsize
-  if string.length <= winsize[1]
-    stream.puts string
-  else
-    stream.puts "#{string[0, winsize[1] - 3]}..."
+  Array(string).each do |str|
+    str = "#{str[0, winsize[1] - 3]}..." if str.length <= winsize[1]
+    stream.puts str
   end
 end

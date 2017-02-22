@@ -20,11 +20,15 @@ Gem::Specification.new do |spec|
     f.match(%r{^(test|spec|features)/})
   end
   spec.require_paths = ["lib"]
-  spec.extensions    = ["ext/utf8_proc/extconf.rb"]
 
   spec.add_development_dependency "bundler", "~> 1.14"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "pry", "~> 0.10"
-  spec.add_development_dependency "rake-compiler", "~> 1.0"
   spec.add_development_dependency "minitest", "~> 5.10"
+  spec.add_development_dependency "rubocop", "~> 0.47"
+
+  unless defined?(JRUBY_VERSION)
+    spec.extensions = ["ext/utf8_proc/extconf.rb"]
+    spec.add_development_dependency "rake-compiler", "~> 1.0"
+  end
 end

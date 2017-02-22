@@ -34,6 +34,7 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_to_nfc_error
+    skip if jruby?
     assert_raises(@encoding_error) do
       ::UTF8Proc.NFC(@unistr_up.encode("UTF-16"))
     end
@@ -50,6 +51,7 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_to_nfd_error
+    skip if jruby?
     assert_raises(@encoding_error) do
       ::UTF8Proc.NFD(@unistr.encode("UTF-16"))
     end
@@ -66,6 +68,7 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_to_nfkc_error
+    skip if jruby?
     assert_raises(@encoding_error) do
       ::UTF8Proc.NFKC(@unistr.encode("UTF-16"))
     end
@@ -82,6 +85,7 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_to_nfkd_error
+    skip if jruby?
     assert_raises(@encoding_error) do
       ::UTF8Proc.NFKD(@unistr.encode("UTF-16"))
     end
@@ -98,6 +102,7 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_to_nfkc_cf_error
+    skip if jruby?
     assert_raises(@encoding_error) do
       ::UTF8Proc.NFKC_CF(@unistr_up.encode("UTF-16"))
     end
@@ -138,7 +143,8 @@ class UTF8ProcTest < Minitest::Test
   # Test against Unicode 9.0 Normalization Data
 
   def test_normalization_data
-    i = 0
+    failures = []
+
     normalization_file = File.join(File.dirname(__FILE__), "NormalizationTest.txt")
     File.open(normalization_file, "r") do |file|
       file.each_line do |line|
@@ -164,20 +170,20 @@ class UTF8ProcTest < Minitest::Test
         end
 
         # Be verbose maybe.
-        if $DEBUG
-          tputs(description, STDERR)
-          tputs(desc_chars.inspect, STDERR)
-        end
+        tputs([description, desc_chars.inspect], STDERR) if $DEBUG
 
         # Ensure unescaped characters match description characters
         assert_equal tests, desc_chars
-        assert_equal ::UTF8Proc.NFC(tests[0]), tests[1]
-        assert_equal ::UTF8Proc.NFD(tests[0]), tests[2]
-        assert_equal ::UTF8Proc.NFKC(tests[0]), tests[3]
-        assert_equal ::UTF8Proc.NFKD(tests[0]), tests[4]
-        i += 1
+
+        tries = [::UTF8Proc.NFC(tests[0]), ::UTF8Proc.NFD(tests[0]),
+                 ::UTF8Proc.NFKC(tests[0]), ::UTF8Proc.NFKD(tests[0])]
+
+        failures << "#{tries.inspect} != #{tests[1..-1]}" if tries != tests[1..-1]
       end
-      STDERR.print("(#{i} normalizations tested)") if $VERBOSE
     end
+    failures.each { |f| STDERR.puts "Failure: #{f}" } if $DEBUG
+
+    skip if jruby?
+    assert_empty failures
   end
 end
