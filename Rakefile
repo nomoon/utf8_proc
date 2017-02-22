@@ -19,5 +19,5 @@ else
     ext.lib_dir = "lib/utf8_proc"
   end
 
-  task default: [:clobber, :compile, :test]
+  task default: %i[clobber compile test]
 end

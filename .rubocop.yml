@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 1.9
+  TargetRubyVersion: 2.0
 
 # Metrics
 Metrics/AbcSize:
@@ -87,7 +87,7 @@ Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Style/SymbolArray:
-  Enabled: false
+  Enabled: true
 
 Style/TrailingCommaInLiteral:
   EnforcedStyleForMultiline: comma
