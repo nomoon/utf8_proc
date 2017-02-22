@@ -1,16 +1,17 @@
 
 #include "utf8_proc.h"
 
-const rb_encoding *enc_utf8;
-const rb_encoding *enc_usascii;
-ID NFC;
-ID NFD;
-ID NFKC;
-ID NFKD;
-ID NFKC_CF;
+static rb_encoding *enc_utf8;
+static rb_encoding *enc_usascii;
+static ID NFC;
+static ID NFD;
+static ID NFKC;
+static ID NFKD;
+static ID NFKC_CF;
 
 static inline void checkStrEncoding(VALUE *string) {
-  rb_encoding *enc = rb_enc_get(*string);
+  rb_encoding *enc;
+  enc = rb_enc_get(*string);
   if (enc != enc_utf8 && enc != enc_usascii) {
     rb_raise(rb_eEncodingError, "%s", "String must be in UTF-8 or US-ASCII encoding.");
   }
@@ -19,8 +20,10 @@ static inline void checkStrEncoding(VALUE *string) {
 static inline VALUE normInternal(VALUE string, utf8proc_option_t options) {
   checkStrEncoding(&string);
   utf8proc_uint8_t *retval;
-  utf8proc_ssize_t retlen = utf8proc_map(
-    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval, options);
+  utf8proc_ssize_t retlen;
+  retlen = utf8proc_map(
+    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval, options
+  );
 
   VALUE new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
   free(retval);
@@ -59,7 +62,8 @@ VALUE norm(int argc, VALUE* argv, VALUE self){
     return toNFC(self, string);
   }
 
-  ID s_form = SYM2ID(form);
+  ID s_form;
+  s_form = SYM2ID(form);
   if (s_form == NFC) {
     return toNFC(self, string);
   }else if(s_form == NFD) {
@@ -88,7 +92,8 @@ void Init_utf8_proc(void) {
   NFKD = rb_intern("nfkd");
   NFKC_CF = rb_intern("nfkc_cf");
 
-  const char *libVersion = utf8proc_version();
+  const char *libVersion;
+  libVersion = utf8proc_version();
   rb_define_const(rb_mBase, "LIBRARY_VERSION", rb_str_freeze(
     rb_enc_str_new(libVersion, strlen(libVersion), enc_utf8)
   ));
