@@ -1,5 +1,6 @@
 # UTF8Proc
 
+[![Build Status](https://travis-ci.org/nomoon/utf8_proc.svg?branch=master)](https://travis-ci.org/nomoon/utf8_proc)
 [![Dependency Status](https://gemnasium.com/badges/github.com/nomoon/utf8_proc.svg)](https://gemnasium.com/github.com/nomoon/utf8_proc)
 [![Gem Version](https://badge.fury.io/rb/utf8_proc.svg)](https://badge.fury.io/rb/utf8_proc)
 
