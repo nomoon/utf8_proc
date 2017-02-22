@@ -138,7 +138,7 @@ class UTF8ProcTest < Minitest::Test
     File.open(File.join(__dir__, "NormalizationTest.txt"), "r") do |file|
       file.each_line do |line|
         # Skip line if it's only a comment or header
-        next if line.match?(/^(?:\#|\@)/)
+        next if line =~ /^(?:\#|\@)/
 
         # Determine where the comment portion of the line starts, and split.
         split_point = line.index(" # ")
