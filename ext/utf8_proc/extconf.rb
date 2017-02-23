@@ -10,6 +10,7 @@ unless have_library("utf8proc")
                                                "../../vendor/libutf8proc"))
   Dir.chdir(libutf8proc_dir) do
     system("make libutf8proc.a")
+    system("rm utf8proc.o")
   end
 
   dir_config("utf8_proc/utf8_proc",
