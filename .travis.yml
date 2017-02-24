@@ -15,11 +15,5 @@ matrix:
   - rvm: ruby-head
   - rvm: jruby-head
 before_install:
-  - mkdir -p vendor
-  - pushd vendor
-  - wget -O utf8proc.zip https://github.com/JuliaLang/utf8proc/archive/v2.1.0.zip
-  - unzip utf8proc.zip
-  - pushd utf8proc* && sudo make install prefix=/usr && popd
-  - popd
-  - gem install bundler -v 1.14.4
+  - gem install bundler -v 1.14.5
 script: bundle exec rake
