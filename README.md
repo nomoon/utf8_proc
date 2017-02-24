@@ -53,6 +53,14 @@ UTF8Proc.normalize(utf8_string, form = :nfc)
 
 # Version string of loaded libutf8proc
 UTF8Proc::LIBRARY_VERSION
+
+# Add normalization methods directly to String class
+require "utf8_proc/core_ext/string"
+
+# This enables:
+"String".NFC
+"String".normalize(:nfc)
+
 ```
 
 (Like `unf`) on JRuby the gem will fall-back to using `java.text.normalizer`. The interface remains the same.

@@ -32,29 +32,60 @@ static inline VALUE normInternal(VALUE string, utf8proc_option_t options) {
   return new_str;
 }
 
+// NFC
 
-VALUE toNFC(VALUE self, VALUE string) {
+static VALUE toNFC(VALUE self, VALUE string) {
   return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
-VALUE toNFD(VALUE self, VALUE string) {
+static VALUE StoNFC(VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+}
+
+// NFD
+
+static VALUE toNFD(VALUE self, VALUE string) {
   return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
-VALUE toNFKC(VALUE self, VALUE string) {
+static VALUE StoNFD(VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+}
+
+// NFKC
+
+static VALUE toNFKC(VALUE self, VALUE string) {
   return normInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
-VALUE toNFKD(VALUE self, VALUE string) {
+static VALUE StoNFKC(VALUE string) {
+  return normInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+}
+
+// NFKD
+
+static VALUE toNFKD(VALUE self, VALUE string) {
   return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
-VALUE toNFKC_CF(VALUE self, VALUE string) {
+static VALUE StoNFKD(VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+}
+
+// NFKC_CF
+
+static VALUE toNFKC_CF(VALUE self, VALUE string) {
   return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
 }
 
+static VALUE StoNFKC_CF(VALUE string) {
+  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+}
 
-VALUE norm(int argc, VALUE* argv, VALUE self){
+// Parameterized normalization
+
+
+static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   VALUE string;
   VALUE form;
   rb_scan_args(argc, argv, "11", &string, &form);
@@ -82,6 +113,33 @@ VALUE norm(int argc, VALUE* argv, VALUE self){
   }
 }
 
+static VALUE StoNorm(int argc, VALUE* argv, VALUE string){
+  VALUE form;
+  rb_scan_args(argc, argv, "01", &form);
+
+  if (NIL_P(form)) {
+    return StoNFC(string);
+  }
+
+  ID s_form;
+  s_form = SYM2ID(form);
+  if (s_form == NFC) {
+    return StoNFC(string);
+  }else if(s_form == NFD) {
+    return StoNFD(string);
+  }else if(s_form == NFKC) {
+    return StoNFKC(string);
+  }else if(s_form == NFKD) {
+    return StoNFKD(string);
+  }else if(s_form == NFKC_CF) {
+    return StoNFKC_CF(string);
+  }else{
+    rb_raise(rb_eArgError, "%s",
+             "Argument must be one of [:nfc (default), :nfd, :nfkc, " \
+             ":nfkd, :nfkc_cf]");
+  }
+}
+
 void Init_utf8_proc(void) {
   VALUE rb_mBase;
   rb_mBase = rb_define_module("UTF8Proc");
@@ -105,5 +163,14 @@ void Init_utf8_proc(void) {
   rb_define_singleton_method(rb_mBase, "NFKC", toNFKC, 1);
   rb_define_singleton_method(rb_mBase, "NFKD", toNFKD, 1);
   rb_define_singleton_method(rb_mBase, "NFKC_CF", toNFKC_CF, 1);
-  rb_define_singleton_method(rb_mBase, "normalize", norm, -1);
+  rb_define_singleton_method(rb_mBase, "normalize", toNorm, -1);
+
+  VALUE rb_mStringExt;
+  rb_mStringExt = rb_define_module_under(rb_mBase, "StringExtension");
+  rb_define_method(rb_mStringExt, "NFC", StoNFC, 0);
+  rb_define_method(rb_mStringExt, "NFD", StoNFD, 0);
+  rb_define_method(rb_mStringExt, "NFKC", StoNFKC, 0);
+  rb_define_method(rb_mStringExt, "NFKD", StoNFKD, 0);
+  rb_define_method(rb_mStringExt, "NFKC_CF", StoNFKC_CF, 0);
+  rb_define_method(rb_mStringExt, "normalize", StoNorm, -1);
 }
