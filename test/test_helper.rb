@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "utf8_proc"
+require "utf8_proc/core_ext/string"
 
 require "io/console"
 require "minitest/autorun"

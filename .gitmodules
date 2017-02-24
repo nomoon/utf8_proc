@@ -1,0 +1,3 @@
+[submodule "vendor/libutf8proc"]
+	path = vendor/libutf8proc
+	url = https://github.com/JuliaLang/utf8proc.git

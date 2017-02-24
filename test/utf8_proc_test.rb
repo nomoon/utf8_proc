@@ -27,6 +27,7 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfc_result
     assert_equal ::UTF8Proc.NFC(@unistr_up), @unistr_up_nfc
+    assert_equal @unistr_up.NFC, @unistr_up_nfc
   end
 
   def test_to_nfc_encoding
@@ -44,6 +45,7 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfd_result
     assert_equal ::UTF8Proc.NFD(@unistr), @unistr_nfd
+    assert_equal @unistr.NFD, @unistr_nfd
   end
 
   def test_to_nfd_encoding
@@ -61,6 +63,7 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfkc_result
     assert_equal ::UTF8Proc.NFKC(@unistr), @unistr_nfkc
+    assert_equal @unistr.NFKC, @unistr_nfkc
   end
 
   def test_to_nfkc_encoding
@@ -78,6 +81,7 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfkd_result
     assert_equal ::UTF8Proc.NFKD(@unistr), @unistr_nfkd
+    assert_equal @unistr.NFKD, @unistr_nfkd
   end
 
   def test_to_nfkd_encoding
@@ -95,6 +99,7 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfkc_cf_result
     assert_equal ::UTF8Proc.NFKC_CF(@unistr_up), @unistr_nfkc
+    assert_equal @unistr_up.NFKC_CF, @unistr_nfkc
   end
 
   def test_to_nfkc_cf_encoding
@@ -112,26 +117,32 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_norm_default_result
     assert_equal ::UTF8Proc.normalize(@unistr_up), @unistr_up_nfc
+    assert_equal @unistr_up.normalize, @unistr_up_nfc
   end
 
   def test_to_norm_nfc_result
     assert_equal ::UTF8Proc.normalize(@unistr_up, :nfc), @unistr_up_nfc
+    assert_equal @unistr_up.normalize(:nfc), @unistr_up_nfc
   end
 
   def test_to_norm_nfd_result
     assert_equal ::UTF8Proc.normalize(@unistr, :nfd), @unistr_nfd
+    assert_equal @unistr.normalize(:nfd), @unistr_nfd
   end
 
   def test_to_norm_nfkc_result
     assert_equal ::UTF8Proc.normalize(@unistr, :nfkc), @unistr_nfkc
+    assert_equal @unistr.normalize(:nfkc), @unistr_nfkc
   end
 
   def test_to_norm_nfkd_result
     assert_equal ::UTF8Proc.normalize(@unistr, :nfkd), @unistr_nfkd
+    assert_equal @unistr.normalize(:nfkd), @unistr_nfkd
   end
 
   def test_to_norm_nfkc_cf_result
     assert_equal ::UTF8Proc.normalize(@unistr_up, :nfkc_cf), @unistr_nfkc
+    assert_equal @unistr_up.normalize(:nfkc_cf), @unistr_nfkc
   end
 
   def test_to_norm_error
@@ -140,9 +151,29 @@ class UTF8ProcTest < Minitest::Test
     end
   end
 
+  # A few separate tests for String extension (result tests are combined)
+
+  def test_self_to_nfc_encoding
+    assert_equal @unistr_up.NFC.encoding, Encoding::UTF_8
+  end
+
+  def test_self_to_nfc_error
+    skip if jruby?
+    assert_raises(@encoding_error) do
+      @unistr_up.encode("UTF-16").NFC
+    end
+  end
+
+  def test_self_to_norm_error
+    assert_raises(@form_error) do
+      @unistr.normalize(:foo)
+    end
+  end
+
   # Test against Unicode 9.0 Normalization Data
 
   def test_normalization_data
+    skip if jruby?
     failures = []
 
     normalization_file = File.join(File.dirname(__FILE__), "NormalizationTest.txt")
@@ -183,7 +214,6 @@ class UTF8ProcTest < Minitest::Test
     end
     failures.each { |f| STDERR.puts "Failure: #{f}" } if $DEBUG
 
-    skip if jruby?
     assert_empty failures
   end
 end

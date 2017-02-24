@@ -19,6 +19,10 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
+  spec.files += ["vendor/libutf8proc/utf8proc.c",
+                 "vendor/libutf8proc/utf8proc.h",
+                 "vendor/libutf8proc/utf8proc_data.c"]
+
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.14"
@@ -27,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest", "~> 5.10"
   spec.add_development_dependency "rubocop", "~> 0.47"
 
-  unless defined?(JRUBY_VERSION)
+  unless RUBY_ENGINE == "jruby"
     spec.extensions = ["ext/utf8_proc/extconf.rb"]
     spec.add_development_dependency "rake-compiler", "~> 1.0"
   end

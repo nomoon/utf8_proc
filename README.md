@@ -4,7 +4,7 @@
 [![Dependency Status](https://gemnasium.com/badges/github.com/nomoon/utf8_proc.svg)](https://gemnasium.com/github.com/nomoon/utf8_proc)
 [![Gem Version](https://badge.fury.io/rb/utf8_proc.svg)](https://badge.fury.io/rb/utf8_proc)
 
-A simple wrapper around [utf8proc](https://github.com/JuliaLang/utf8proc) for normalizing Unicode strings. Requires the `utf8proc` library and headers to be installed on your system. *(Packages are available. OSX: `brew install utf8proc`, Linux: `libutf8proc-dev` or `utf8proc-devel`)*
+A simple wrapper around [utf8proc](https://github.com/JuliaLang/utf8proc) for normalizing Unicode strings. Will use the `utf8proc` shared library and headers installed on your system if they are available *(Packages are available. OSX: `brew install utf8proc`, Linux: `libutf8proc-dev` or `utf8proc-devel`)*. Failing that, it will fall-back to compiling the library into the extension.
 
 Currently supports UTF-8/ASCII string input and NFC, NFD, NFKC, NFKD, and NKFC-Casefold forms. Handles Unicode 9.0 and includes the current official full suite of 9.0 normalization tests.
 
@@ -17,7 +17,7 @@ Quick benchmarks against the [UNF](https://github.com/knu/ruby-unf) gem show it 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'utf8_proc'
+gem "utf8_proc"
 ```
 
 And then execute:
@@ -53,6 +53,14 @@ UTF8Proc.normalize(utf8_string, form = :nfc)
 
 # Version string of loaded libutf8proc
 UTF8Proc::LIBRARY_VERSION
+
+# Add normalization methods directly to String class
+require "utf8_proc/core_ext/string"
+
+# This enables:
+"String".NFC
+"String".normalize(:nfc)
+
 ```
 
 (Like `unf`) on JRuby the gem will fall-back to using `java.text.normalizer`. The interface remains the same.
