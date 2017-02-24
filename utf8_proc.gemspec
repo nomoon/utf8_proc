@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest", "~> 5.10"
   spec.add_development_dependency "rubocop", "~> 0.47"
 
-  unless defined?(JRUBY_VERSION)
+  unless RUBY_ENGINE == "jruby"
     spec.extensions = ["ext/utf8_proc/extconf.rb"]
     spec.add_development_dependency "rake-compiler", "~> 1.0"
   end

@@ -11,7 +11,7 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList["test/**/*_test.rb"]
 end
 
-if defined?(JRUBY_VERSION)
+if RUBY_ENGINE == "jruby"
   task default: %i[rubocop test]
 else
   require "rake/extensiontask"

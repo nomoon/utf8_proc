@@ -2,7 +2,7 @@
 require "utf8_proc/version"
 
 module UTF8Proc
-  if defined?(JRUBY_VERSION)
+  if RUBY_ENGINE == "jruby"
     require "utf8_proc/jruby"
     include JRuby
   else
