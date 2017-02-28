@@ -17,13 +17,19 @@ static inline void checkStrEncoding(VALUE *string) {
   }
 }
 
-static inline VALUE normInternal(VALUE string, utf8proc_option_t options) {
-  checkStrEncoding(&string);
+static inline VALUE normInternal(VALUE *string, utf8proc_option_t options) {
+  checkStrEncoding(string);
   utf8proc_uint8_t *retval;
   utf8proc_ssize_t retlen;
   retlen = utf8proc_map(
-    (unsigned char *) StringValuePtr(string), RSTRING_LEN(string), &retval, options
+    (unsigned char *) StringValuePtr(*string), RSTRING_LEN(*string), &retval, options
   );
+
+  if (retlen < 0) {
+    free(retval);
+    rb_raise(rb_eRuntimeError, "%s", utf8proc_errmsg(retlen));
+    return Qnil;
+  }
 
   VALUE new_str;
   new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
@@ -35,55 +41,54 @@ static inline VALUE normInternal(VALUE string, utf8proc_option_t options) {
 // NFC
 
 static VALUE toNFC(VALUE self, VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
 static VALUE StoNFC(VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
 // NFD
 
 static VALUE toNFD(VALUE self, VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
 static VALUE StoNFD(VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
 // NFKC
 
 static VALUE toNFKC(VALUE self, VALUE string) {
-  return normInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
 static VALUE StoNFKC(VALUE string) {
-  return normInternal(string,UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
 // NFKD
 
 static VALUE toNFKD(VALUE self, VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
 static VALUE StoNFKD(VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
 // NFKC_CF
 
 static VALUE toNFKC_CF(VALUE self, VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
 }
 
 static VALUE StoNFKC_CF(VALUE string) {
-  return normInternal(string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
 }
 
 // Parameterized normalization
-
 
 static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   VALUE string;
@@ -97,16 +102,16 @@ static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   ID s_form;
   s_form = SYM2ID(form);
   if (s_form == NFC) {
-    return toNFC(self, string);
-  }else if(s_form == NFD) {
-    return toNFD(self, string);
-  }else if(s_form == NFKC) {
-    return toNFKC(self, string);
-  }else if(s_form == NFKD) {
-    return toNFKD(self, string);
-  }else if(s_form == NFKC_CF) {
-    return toNFKC_CF(self, string);
-  }else{
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+  } else if (s_form == NFD) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+  } else if (s_form == NFKC) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+  } else if (s_form == NFKD) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+  } else if (s_form == NFKC_CF) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+  } else {
     rb_raise(rb_eArgError, "%s",
              "Second argument must be one of [:nfc (default), :nfd, :nfkc, " \
              ":nfkd, :nfkc_cf]");
@@ -124,16 +129,16 @@ static VALUE StoNorm(int argc, VALUE* argv, VALUE string){
   ID s_form;
   s_form = SYM2ID(form);
   if (s_form == NFC) {
-    return StoNFC(string);
-  }else if(s_form == NFD) {
-    return StoNFD(string);
-  }else if(s_form == NFKC) {
-    return StoNFKC(string);
-  }else if(s_form == NFKD) {
-    return StoNFKD(string);
-  }else if(s_form == NFKC_CF) {
-    return StoNFKC_CF(string);
-  }else{
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+  } else if (s_form == NFD) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
+  } else if (s_form == NFKC) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
+  } else if (s_form == NFKD) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
+  } else if (s_form == NFKC_CF) {
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+  } else {
     rb_raise(rb_eArgError, "%s",
              "Argument must be one of [:nfc (default), :nfd, :nfkc, " \
              ":nfkd, :nfkc_cf]");
