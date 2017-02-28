@@ -57,7 +57,7 @@ static VALUE normInternal(VALUE *string, utf8proc_option_t options) {
 
   if (retlen < 0) {
     if (retval) free(retval);
-    rb_raise(rb_eRuntimeError, "%s", utf8proc_errmsg(retlen));
+    rb_raise(rb_eEncodingError, "%s", utf8proc_errmsg(retlen));
     return Qnil;
   }
 
