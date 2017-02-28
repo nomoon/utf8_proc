@@ -9,62 +9,49 @@ static ID NFKC;
 static ID NFKD;
 static ID NFKC_CF;
 
-static void checkStrEncoding(VALUE *string) {
+// Derived from utf8proc_map_custom.
+// Pre-allocates string buffers and skips initial preflight decompose and
+// post-flight relloc for speed.
+static inline VALUE normInternal(VALUE *string, utf8proc_option_t options) {
   rb_encoding *enc;
   enc = rb_enc_get(*string);
-  if (enc != enc_utf8 && enc != enc_usascii) {
+  if (!(enc == enc_utf8 || enc == enc_usascii)) {
     rb_raise(rb_eEncodingError, "%s", "String must be in UTF-8 or US-ASCII encoding.");
   }
-}
 
-// Customized version of utf8proc_map_custom that pre-allocates buffers and skips
-// the initial preflight decompose pass for speed.
-static utf8proc_ssize_t utf8proc_prealloc_norm(
-  const utf8proc_uint8_t *str, utf8proc_ssize_t strlen, utf8proc_uint8_t **dstptr, utf8proc_option_t options) {
+  // Allocate buffer to safe maximum length estimated from Normalization options
+  // and known maximal expansion of codepoints
   utf8proc_int32_t *buffer;
-  utf8proc_ssize_t result;
-  *dstptr = NULL;
   utf8proc_ssize_t bufflen;
-  bufflen = strlen * ((options & UTF8PROC_COMPAT) ? 6 : 2);
+  bufflen = rb_str_strlen(*string) * ((options & UTF8PROC_COMPAT) ? 18 : 4);
   buffer = (utf8proc_int32_t *) malloc(bufflen * sizeof(utf8proc_int32_t) + 1);
-  if (!buffer) return UTF8PROC_ERROR_NOMEM;
-  result = utf8proc_decompose_custom(str, strlen, buffer, bufflen, options, NULL, NULL);
+  if (!buffer) {
+    rb_raise(rb_eEncodingError, "%s", utf8proc_errmsg(UTF8PROC_ERROR_NOMEM));
+    return Qnil;
+  }
+
+  utf8proc_ssize_t result;
+  // Decompose input
+  result = utf8proc_decompose_custom((unsigned char *) StringValuePtr(*string),
+                                     RSTRING_LEN(*string), buffer, bufflen,
+                                     options, NULL, NULL);
   if (result < 0) {
     free(buffer);
-    return result;
+    rb_raise(rb_eEncodingError, "%s", utf8proc_errmsg(result));
+    return Qnil;
   }
+
+  // Compose & re-encode input.
   result = utf8proc_reencode(buffer, result, options);
   if (result < 0) {
     free(buffer);
-    return result;
-  }
-  {
-    utf8proc_int32_t *newptr;
-    newptr = (utf8proc_int32_t *) realloc(buffer, (size_t)result+1);
-    if (newptr) buffer = newptr;
-  }
-  *dstptr = (utf8proc_uint8_t *)buffer;
-  return result;
-}
-
-static VALUE normInternal(VALUE *string, utf8proc_option_t options) {
-  checkStrEncoding(string);
-  utf8proc_uint8_t *retval;
-  utf8proc_ssize_t retlen;
-  retlen = utf8proc_prealloc_norm(
-    (unsigned char *) StringValuePtr(*string), RSTRING_LEN(*string), &retval, options
-  );
-
-  if (retlen < 0) {
-    if (retval) free(retval);
-    rb_raise(rb_eEncodingError, "%s", utf8proc_errmsg(retlen));
+    rb_raise(rb_eEncodingError, "%s", utf8proc_errmsg(result));
     return Qnil;
   }
 
   VALUE new_str;
-  new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
-  if (retval) free(retval);
-
+  new_str = rb_enc_str_new((char *) buffer, result, enc_utf8);
+  free(buffer);
   return new_str;
 }
 

@@ -1,9 +1,11 @@
-#ifndef ICU_TEST_H
-#define ICU_TEST_H 1
+#ifndef UTF8_PROC_H
+#define UTF8_PROC_H 1
 
 #include <ruby.h>
 #include <ruby/encoding.h>
 
 #include <utf8proc.h>
 
-#endif /* ICU_TEST_H */
+extern void Init_utf8_proc(void);
+
+#endif /* UTF8_PROC_H */
