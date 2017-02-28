@@ -9,7 +9,7 @@ static ID NFKC;
 static ID NFKD;
 static ID NFKC_CF;
 
-static inline void checkStrEncoding(VALUE *string) {
+static void checkStrEncoding(VALUE *string) {
   rb_encoding *enc;
   enc = rb_enc_get(*string);
   if (enc != enc_utf8 && enc != enc_usascii) {
@@ -17,11 +17,40 @@ static inline void checkStrEncoding(VALUE *string) {
   }
 }
 
-static inline VALUE normInternal(VALUE *string, utf8proc_option_t options) {
+// Customized version of utf8proc_map_custom that pre-allocates buffers and skips
+// the initial preflight decompose pass for speed.
+static utf8proc_ssize_t utf8proc_prealloc_norm(
+  const utf8proc_uint8_t *str, utf8proc_ssize_t strlen, utf8proc_uint8_t **dstptr, utf8proc_option_t options) {
+  utf8proc_int32_t *buffer;
+  utf8proc_ssize_t result;
+  utf8proc_ssize_t bufflen;
+  bufflen = strlen * ((options & UTF8PROC_COMPAT) ? 6 : 2);
+  buffer = (utf8proc_int32_t *) malloc(bufflen * sizeof(utf8proc_int32_t) + 1);
+  if (!buffer) return UTF8PROC_ERROR_NOMEM;
+  result = utf8proc_decompose_custom(str, strlen, buffer, bufflen, options, NULL, NULL);
+  if (result < 0) {
+    free(buffer);
+    return result;
+  }
+  result = utf8proc_reencode(buffer, result, options);
+  if (result < 0) {
+    free(buffer);
+    return result;
+  }
+  {
+    utf8proc_int32_t *newptr;
+    newptr = (utf8proc_int32_t *) realloc(buffer, (size_t)result+1);
+    if (newptr) buffer = newptr;
+  }
+  *dstptr = (utf8proc_uint8_t *)buffer;
+  return result;
+}
+
+static VALUE normInternal(VALUE *string, utf8proc_option_t options) {
   checkStrEncoding(string);
   utf8proc_uint8_t *retval;
   utf8proc_ssize_t retlen;
-  retlen = utf8proc_map(
+  retlen = utf8proc_prealloc_norm(
     (unsigned char *) StringValuePtr(*string), RSTRING_LEN(*string), &retval, options
   );
 
