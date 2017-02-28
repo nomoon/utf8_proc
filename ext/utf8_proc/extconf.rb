@@ -12,7 +12,7 @@ unless have_library("utf8proc")
 
   $VPATH << libutf8proc_dir
   $srcs = ["utf8_proc.c", "utf8proc.c"]
-  $CFLAGS << " -I#{libutf8proc_dir}"
+  $CFLAGS << " -fPIC -I#{libutf8proc_dir}"
 end
 
 $CFLAGS << " -std=c99 -Wno-declaration-after-statement"
