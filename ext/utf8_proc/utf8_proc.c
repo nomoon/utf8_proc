@@ -23,6 +23,7 @@ static utf8proc_ssize_t utf8proc_prealloc_norm(
   const utf8proc_uint8_t *str, utf8proc_ssize_t strlen, utf8proc_uint8_t **dstptr, utf8proc_option_t options) {
   utf8proc_int32_t *buffer;
   utf8proc_ssize_t result;
+  *dstptr = NULL;
   utf8proc_ssize_t bufflen;
   bufflen = strlen * ((options & UTF8PROC_COMPAT) ? 6 : 2);
   buffer = (utf8proc_int32_t *) malloc(bufflen * sizeof(utf8proc_int32_t) + 1);
@@ -55,14 +56,14 @@ static VALUE normInternal(VALUE *string, utf8proc_option_t options) {
   );
 
   if (retlen < 0) {
-    free(retval);
+    if (retval) free(retval);
     rb_raise(rb_eRuntimeError, "%s", utf8proc_errmsg(retlen));
     return Qnil;
   }
 
   VALUE new_str;
   new_str = rb_enc_str_new((char *) retval, retlen, rb_utf8_encoding());
-  free(retval);
+  if (retval) free(retval);
 
   return new_str;
 }
