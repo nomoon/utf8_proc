@@ -19,6 +19,6 @@ $CFLAGS << " -fPIC" if RbConfig::CONFIG["target_cpu"] == "x86_64"
 if RbConfig::CONFIG["CC"] == "clang"
   $CFLAGS << " -flto -mllvm -inline-threshold=5000"
 end
-$CFLAGS << " -march=native -mtune=native -Wno-declaration-after-statement"
+$CFLAGS << " -std=c99 -march=native -mtune=native -Wno-declaration-after-statement"
 
 create_makefile("utf8_proc/utf8_proc")
