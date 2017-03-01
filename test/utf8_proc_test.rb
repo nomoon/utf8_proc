@@ -176,14 +176,14 @@ class UTF8ProcTest < Minitest::Test
   def test_to_norm_usascii
     result = ::UTF8Proc.normalize(@asciistr)
     assert_equal @asciistr, result
-    assert_equal result.encoding, Encoding::US_ASCII
+    assert_equal result.encoding, Encoding::US_ASCII unless jruby?
     refute_same @asciistr, result
   end
 
   def test_to_norm_usascii_casefold
     result = ::UTF8Proc.normalize(@asciistr, :nfkc_cf)
     assert_equal @asciistr.downcase, result
-    assert_equal result.encoding, Encoding::US_ASCII
+    assert_equal result.encoding, Encoding::US_ASCII unless jruby?
   end
 
   # Test against Unicode 9.0 Normalization Data
