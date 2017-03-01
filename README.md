@@ -6,11 +6,9 @@
 
 A simple wrapper around [utf8proc](https://github.com/JuliaLang/utf8proc) for normalizing Unicode strings. Will use the `utf8proc` shared library and headers installed on your system if they are available *(Packages are available. OSX: `brew install utf8proc`, Linux: `libutf8proc-dev` or `utf8proc-devel`)*. Failing that, it will fall-back to compiling the library into the extension.
 
-Currently supports UTF-8/ASCII string input and NFC, NFD, NFKC, NFKD, and NKFC-Casefold forms. Handles Unicode 9.0 and includes the current official full suite of 9.0 normalization tests.
+Currently supports UTF-8/ASCII string input and NFC, NFD, NFKC, NFKD, and NKFC-Casefold forms (US-ASCII strings return an unmodified or case-folded copy). Handles Unicode 9.0 and includes the current official full suite of 9.0 normalization tests.
 
-Quick benchmarks against the [UNF](https://github.com/knu/ruby-unf) gem show it to be between the same speed (best-case) and ~2x slower (worst-case), averaging about ~1.2x slower on complex Unicode strings. The speed difference is more equal in NFC/NFD modes where mostly or already-normalized strings are used.
-
-*(Note: UNF is generally a bit faster but currently officially supports Unicode 6.0 and does not pass all 9.0 normalization tests.)*
+Quick benchmarks against the [UNF](https://github.com/knu/ruby-unf) gem show `utf8_proc` to be between the same speed (best-case) and ~2x slower (worst-case), averaging about 1.15 to 1.5x slower and improving on complex Unicode strings. *(However, UNF currently only officially supports Unicode 6.0 and does not pass all 9.0 normalization tests.)*
 
 ## Installation
 

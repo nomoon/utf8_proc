@@ -15,7 +15,17 @@ static ID NFKC_CF;
 static inline VALUE normInternal(VALUE *string, utf8proc_option_t options) {
   rb_encoding *enc;
   enc = rb_enc_get(*string);
-  if (!(enc == enc_utf8 || enc == enc_usascii)) {
+  if (enc == enc_utf8) {
+    // Continue
+  } else if (enc == enc_usascii) {
+    // Return a US-ASCII copy, possibly case-folded
+    char *c_str = StringValuePtr(*string);
+    long c_strlen = RSTRING_LEN(*string);
+    if (options & UTF8PROC_CASEFOLD) {
+      for(int i = 0; i < c_strlen; i++) { c_str[i] = tolower(c_str[i]); }
+    }
+    return rb_enc_str_new(c_str, c_strlen, enc_usascii);
+  } else {
     rb_raise(rb_eEncodingError, "%s", "String must be in UTF-8 or US-ASCII encoding.");
   }
 
