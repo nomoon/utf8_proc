@@ -8,7 +8,9 @@ module UTF8Proc
       require "benchmark/ips"
       require "unf"
       # Various different normalizations of Unicode characters.
-      test_arr = ["\u{03D3}", "\u{03D2 0301}", "\u{038E}", "\u{03A5 0301}",
+      test_arr = ["quick", "brown", "fox", "jumped", "over", "lazy", "dog",
+                  "QUICK", "BROWN", "FOX", "JUMPED", "OVER", "LAZY", "DOG",
+                  "\u{03D3}", "\u{03D2 0301}", "\u{038E}", "\u{03A5 0301}",
                   "\u{03D4}", "\u{03D2 0308}", "\u{03AB}", "\u{03A5 0308}",
                   "\u{1E9B}", "\u{017F 0307}", "\u{1E61}", "\u{0073 0307}",
                   "\u{1D160}", "\u{1D158 1D165 1D16E}",
