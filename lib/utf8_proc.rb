@@ -2,7 +2,7 @@
 require "utf8_proc/version"
 require "utf8_proc/benchmark"
 
-# {include:file:./README.md}
+# Unicode string normalization library using UTF8Proc
 module UTF8Proc
   if RUBY_ENGINE == "jruby"
     require "utf8_proc/jruby"
