@@ -43,4 +43,4 @@ module UTF8Proc
   end
 end
 
-String.include(UTF8Proc::JRuby::StringExtension)
+String.send(:include, ::UTF8Proc::JRuby::StringExtension)

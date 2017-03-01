@@ -16,5 +16,5 @@ end
 if RUBY_ENGINE == "jruby"
   require "utf8_proc/core_ext/string_jruby"
 else
-  String.include(::UTF8Proc::StringExtension)
+  String.send(:include, ::UTF8Proc::StringExtension)
 end
