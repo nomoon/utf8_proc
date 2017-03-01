@@ -1,6 +1,7 @@
 #ifndef UTF8_PROC_H
 #define UTF8_PROC_H 1
 
+#include <ctype.h>
 #include <ruby.h>
 #include <ruby/encoding.h>
 

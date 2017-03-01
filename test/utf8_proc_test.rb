@@ -3,6 +3,7 @@ require "test_helper"
 
 class UTF8ProcTest < Minitest::Test
   def setup
+    @asciistr =      "ASCII STRING"      .encode("US-ASCII")
     @unistr =        "\u1E9B\u0323"      .encode("UTF-8") # Also NFC
     @unistr_nfd =    "\u017F\u0323\u0307".encode("UTF-8")
     @unistr_nfkc =   "\u1E69"            .encode("UTF-8")
@@ -168,6 +169,21 @@ class UTF8ProcTest < Minitest::Test
     assert_raises(@form_error) do
       @unistr.normalize(:foo)
     end
+  end
+
+  # US-ASCII normalization should return a duplicate identical string
+  # unless case-folding
+  def test_to_norm_usascii
+    result = ::UTF8Proc.normalize(@asciistr)
+    assert_equal @asciistr, result
+    assert_equal result.encoding, Encoding::US_ASCII
+    refute_same @asciistr, result
+  end
+
+  def test_to_norm_usascii_casefold
+    result = ::UTF8Proc.normalize(@asciistr, :nfkc_cf)
+    assert_equal @asciistr.downcase, result
+    assert_equal result.encoding, Encoding::US_ASCII
   end
 
   # Test against Unicode 9.0 Normalization Data
