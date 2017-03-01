@@ -113,7 +113,7 @@ static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   rb_scan_args(argc, argv, "11", &string, &form);
 
   if (NIL_P(form)) {
-    return toNFC(self, string);
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
   }
 
   ID s_form;
@@ -140,7 +140,7 @@ static VALUE StoNorm(int argc, VALUE* argv, VALUE string){
   rb_scan_args(argc, argv, "01", &form);
 
   if (NIL_P(form)) {
-    return StoNFC(string);
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
   }
 
   ID s_form;
