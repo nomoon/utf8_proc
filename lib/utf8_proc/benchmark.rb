@@ -23,6 +23,7 @@ module UTF8Proc
       puts "\nBenchmark strings:\n\n * #{test_strings.join("\n * ")}\n\n"
 
       ::Benchmark.ips do |x|
+        x.config(time: 10, warmup: 2)
         x.report("UNF NFC") do
           UNF::Normalizer.normalize(test_strings.sample, :nfc)
         end
@@ -34,6 +35,7 @@ module UTF8Proc
       end
 
       ::Benchmark.ips do |x|
+        x.config(time: 10, warmup: 2)
         x.report("UNF NFD") do
           UNF::Normalizer.normalize(test_strings.sample, :nfd)
         end
@@ -45,6 +47,7 @@ module UTF8Proc
       end
 
       ::Benchmark.ips do |x|
+        x.config(time: 10, warmup: 2)
         x.report("UNF NFKC") do
           UNF::Normalizer.normalize(test_strings.sample, :nfkc)
         end
@@ -56,12 +59,25 @@ module UTF8Proc
       end
 
       ::Benchmark.ips do |x|
+        x.config(time: 10, warmup: 2)
         x.report("UNF NFKD") do
           UNF::Normalizer.normalize(test_strings.sample, :nfkd)
         end
 
         x.report("UTF8Proc NFKD") do
           UTF8Proc.normalize(test_strings.sample, :nfkd)
+        end
+        x.compare!
+      end
+
+      ::Benchmark.ips do |x|
+        x.config(time: 10, warmup: 2)
+        x.report("UNF NFKC with .downcase") do
+          UNF::Normalizer.normalize(test_strings.sample, :nfkc).downcase
+        end
+
+        x.report("UTF8Proc NFKC_CF") do
+          UTF8Proc.normalize(test_strings.sample, :nfkc_cf)
         end
         x.compare!
       end
