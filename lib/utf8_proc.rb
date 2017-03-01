@@ -10,4 +10,13 @@ module UTF8Proc
   else
     require "utf8_proc/utf8_proc"
   end
+
+  # Add lowercase name aliases for normalization methods
+  class << self
+    alias nfc NFC
+    alias nfd NFD
+    alias nfkc NFKC
+    alias nfkd NFKD
+    alias nfkc_cf NFKC_CF
+  end
 end
