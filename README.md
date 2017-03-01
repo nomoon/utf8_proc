@@ -28,6 +28,8 @@ Or install it yourself as:
 
 ## Usage
 
+YARD documentation is available at [rubydoc.info](http://www.rubydoc.info/github/nomoon/utf8_proc)
+
 ```ruby
 require "utf8_proc"
 

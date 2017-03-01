@@ -2,10 +2,19 @@
 
 require "utf8_proc"
 
-class String
-  if RUBY_ENGINE == "jruby"
-    require "utf8_proc/core_ext/string_jruby"
-  else
-    include ::UTF8Proc::StringExtension
+module UTF8Proc
+  # Module containing core extension methods for the {::String} class.
+  #
+  # You can activate this by using:
+  #   require "utf8_proc/core_ext/string"
+  #
+  # It will load either C or Java extensions, depending on your Ruby version
+  module StringExtension
   end
+end
+
+if RUBY_ENGINE == "jruby"
+  require "utf8_proc/core_ext/string_jruby"
+else
+  String.include(::UTF8Proc::StringExtension)
 end

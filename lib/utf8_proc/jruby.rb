@@ -6,37 +6,49 @@
 require "java"
 
 module UTF8Proc
+  # JRuby normalization module.
+  #
+  # This module will load automatically depending on your Ruby version.
   module JRuby
+    # Displays your version of the Java VM
     LIBRARY_VERSION = "Java #{ENV_JAVA['java.version']}".freeze
 
     JTNORM = java.text.Normalizer
     private_constant :JTNORM
 
+    # @!visibility private
     def self.included(receiver)
       receiver.extend(ClassMethods)
     end
 
+    # Methods added to the {::UTF8Proc} module in JRuby (instead of the C ones)
     module ClassMethods
+      # @see UTF8Proc.NFC
       def NFC(string)
         JTNORM.normalize(string, JTNORM::Form::NFC)
       end
 
+      # @see UTF8Proc.NFD
       def NFD(string)
         JTNORM.normalize(string, JTNORM::Form::NFD)
       end
 
+      # @see UTF8Proc.NFKC
       def NFKC(string)
         JTNORM.normalize(string, JTNORM::Form::NFKC)
       end
 
+      # @see UTF8Proc.NFKD
       def NFKD(string)
         JTNORM.normalize(string, JTNORM::Form::NFKD)
       end
 
+      # @see UTF8Proc.NFKC_CF
       def NFKC_CF(string)
         NFKC(string).to_java(:string).toLowerCase
       end
 
+      # @see UTF8Proc.normalize
       def normalize(string, form = :nfc)
         case form
         when :nfc
