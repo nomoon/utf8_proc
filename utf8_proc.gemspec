@@ -32,8 +32,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry", "~> 0.10"
   spec.add_development_dependency "minitest", "~> 5.10"
   spec.add_development_dependency "rubocop", "~> 0.47"
-  spec.add_development_dependency "benchmark-ips"
-  spec.add_development_dependency "unf"
+  spec.add_development_dependency "yard", "~> 0.9"
+  spec.add_development_dependency "benchmark-ips", "~> 2.7"
+  spec.add_development_dependency "unf", "~> 0.1"
 
   unless RUBY_ENGINE == "jruby"
     spec.extensions = ["ext/utf8_proc/extconf.rb"]

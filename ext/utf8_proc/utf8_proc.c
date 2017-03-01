@@ -65,58 +65,133 @@ static inline VALUE normInternal(VALUE *string, utf8proc_option_t options) {
   return new_str;
 }
 
-// NFC
-
+/**
+ * Normalizes a String using NFC (Canonical Decomposition, followed by Canonical
+ * Composition)
+ *
+ * @param string [String] the String to normalize
+ *
+ * @raise [EncodingError] if *string* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized string
+ */
 static VALUE toNFC(VALUE self, VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
+/**
+ * Normalizes self using NFC (Canonical Decomposition, followed by Canonical
+ * Composition)
+ *
+ * @raise [EncodingError] if *self* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized copy of the string
+ */
 static VALUE StoNFC(VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
 }
 
-// NFD
-
+/**
+ * Normalizes a string using NFD (Canonical Decomposition)
+ *
+ * @param string [String] the String to normalize
+ *
+ * @raise [EncodingError] if *string* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized string
+ */
 static VALUE toNFD(VALUE self, VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
+/**
+ * Normalizes self using NFD (Canonical Decomposition)
+ *
+ * @raise [EncodingError] if *self* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized copy of the string
+ */
 static VALUE StoNFD(VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE);
 }
 
-// NFKC
-
+/**
+ * Normalizes a string using NFKC (Compatibility Decomposition, followed by
+ * Canonical Composition)
+ *
+ * @param string [String] the String to normalize
+ *
+ * @raise [EncodingError] if *string* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized string
+ */
 static VALUE toNFKC(VALUE self, VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
+/**
+ * Normalizes self using NFKC (Compatibility Decomposition, followed by
+ * Canonical Composition)
+ *
+ * @raise [EncodingError] if *self* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized copy of the string
+ */
 static VALUE StoNFKC(VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT);
 }
 
-// NFKD
-
+/**
+ * Normalizes a string using NFKD (Compatibility Decomposition)
+ *
+ * @param string [String] the String to normalize
+ *
+ * @raise [EncodingError] if *string* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized string
+ */
 static VALUE toNFKD(VALUE self, VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
+/**
+ * Normalizes self using NFKD (Compatibility Decomposition)
+ *
+ * @raise [EncodingError] if *self* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized copy of the string
+ */
 static VALUE StoNFKD(VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
 }
 
-// NFKC_CF
-
+/**
+ * Normalizes a string using NFKC (Compatibility Decomposition, followed by
+ * Canonical Composition) with case-folding
+ *
+ * @param string [String] the String to normalize
+ *
+ * @raise [EncodingError] if *string* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized string
+ */
 static VALUE toNFKC_CF(VALUE self, VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
 }
 
+/**
+ * Normalizes self using NFKC (Compatibility Decomposition, followed by
+ * Canonical Composition) with case-folding
+ *
+ * @raise [EncodingError] if *self* is not encoded in *UTF-8* or *US-ASCII*
+ * @return [String] a normalized copy of the string
+ */
 static VALUE StoNFKC_CF(VALUE string) {
   return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
 }
 
-// Parameterized normalization
-
+/**
+ * @overload normalize(string, form = :nfc)
+ *   Normalizes a string according to one of the 5 possible forms
+ *
+ *   @param string [String] the String to normalize
+ *   @param form [:nfc, :nfd, :nfkc, :nfkd, :nfkc_cf] the normalization form
+ *
+ *   @raise [EncodingError] if *string* is not encoded in *UTF-8* or *US-ASCII*
+ *   @raise [ArgumentError] if *form* is not one of the 5 valid forms
+ *   @return [String] a normalized string
+ */
 static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   VALUE string;
   VALUE form;
@@ -145,6 +220,16 @@ static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   }
 }
 
+/**
+ * @overload normalize(string, form = :nfc)
+ *   Normalizes self according to one of the 5 possible forms
+ *
+ *   @param form [:nfc, :nfd, :nfkc, :nfkd, :nfkc_cf] the normalization form
+ *
+ *   @raise [EncodingError] if *self* is not encoded in *UTF-8* or *US-ASCII*
+ *   @raise [ArgumentError] if *form* is not one of the 5 valid forms
+ *   @return [String] a normalized copy of the string
+ */
 static VALUE StoNorm(int argc, VALUE* argv, VALUE string){
   VALUE form;
   rb_scan_args(argc, argv, "01", &form);
@@ -186,6 +271,7 @@ void Init_utf8_proc(void) {
 
   const char *libVersion;
   libVersion = utf8proc_version();
+  // Displays the library version of the utf8proc library
   rb_define_const(rb_mBase, "LIBRARY_VERSION", rb_str_freeze(
     rb_enc_str_new(libVersion, strlen(libVersion), enc_utf8)
   ));

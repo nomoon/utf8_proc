@@ -28,7 +28,9 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfc_result
     assert_equal ::UTF8Proc.NFC(@unistr_up), @unistr_up_nfc
+    assert_equal ::UTF8Proc.nfc(@unistr_up), @unistr_up_nfc
     assert_equal @unistr_up.NFC, @unistr_up_nfc
+    assert_equal @unistr_up.nfc, @unistr_up_nfc
   end
 
   def test_to_nfc_encoding
@@ -46,7 +48,9 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfd_result
     assert_equal ::UTF8Proc.NFD(@unistr), @unistr_nfd
+    assert_equal ::UTF8Proc.nfd(@unistr), @unistr_nfd
     assert_equal @unistr.NFD, @unistr_nfd
+    assert_equal @unistr.nfd, @unistr_nfd
   end
 
   def test_to_nfd_encoding
@@ -64,7 +68,9 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfkc_result
     assert_equal ::UTF8Proc.NFKC(@unistr), @unistr_nfkc
+    assert_equal ::UTF8Proc.nfkc(@unistr), @unistr_nfkc
     assert_equal @unistr.NFKC, @unistr_nfkc
+    assert_equal @unistr.nfkc, @unistr_nfkc
   end
 
   def test_to_nfkc_encoding
@@ -82,7 +88,9 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfkd_result
     assert_equal ::UTF8Proc.NFKD(@unistr), @unistr_nfkd
+    assert_equal ::UTF8Proc.nfkd(@unistr), @unistr_nfkd
     assert_equal @unistr.NFKD, @unistr_nfkd
+    assert_equal @unistr.nfkd, @unistr_nfkd
   end
 
   def test_to_nfkd_encoding
@@ -100,7 +108,9 @@ class UTF8ProcTest < Minitest::Test
 
   def test_to_nfkc_cf_result
     assert_equal ::UTF8Proc.NFKC_CF(@unistr_up), @unistr_nfkc
+    assert_equal ::UTF8Proc.nfkc_cf(@unistr_up), @unistr_nfkc
     assert_equal @unistr_up.NFKC_CF, @unistr_nfkc
+    assert_equal @unistr_up.nfkc_cf, @unistr_nfkc
   end
 
   def test_to_nfkc_cf_encoding

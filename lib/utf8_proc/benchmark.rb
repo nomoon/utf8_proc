@@ -1,10 +1,12 @@
 # frozen_string_literal: true
-# rubocop:disable MethodLength
+
 module UTF8Proc
+  # Benchmark module for comparing the speed of *UTF8Proc* and *UNF*
   module Benchmark
     module_function
 
-    def run
+    # Runs the benchmark and displays the results.
+    def run # rubocop:disable MethodLength
       require "benchmark/ips"
       require "unf"
       # Various different normalizations of Unicode characters.
