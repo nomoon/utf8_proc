@@ -167,7 +167,7 @@ static VALUE StoNFKD(VALUE string) {
  * @return [String] a normalized string
  */
 static VALUE toNFKC_CF(VALUE self, VALUE string) {
-  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE);
 }
 
 /**
@@ -178,7 +178,7 @@ static VALUE toNFKC_CF(VALUE self, VALUE string) {
  * @return [String] a normalized copy of the string
  */
 static VALUE StoNFKC_CF(VALUE string) {
-  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+  return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE);
 }
 
 /**
@@ -212,7 +212,7 @@ static VALUE toNorm(int argc, VALUE* argv, VALUE self){
   } else if (s_form == NFKD) {
     return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
   } else if (s_form == NFKC_CF) {
-    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE);
   } else {
     rb_raise(rb_eArgError, "%s",
              "Second argument must be one of [:nfc (default), :nfd, :nfkc, " \
@@ -249,7 +249,7 @@ static VALUE StoNorm(int argc, VALUE* argv, VALUE string){
   } else if (s_form == NFKD) {
     return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT);
   } else if (s_form == NFKC_CF) {
-    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD);
+    return normInternal(&string, UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_CASEFOLD | UTF8PROC_IGNORE);
   } else {
     rb_raise(rb_eArgError, "%s",
              "Argument must be one of [:nfc (default), :nfd, :nfkc, " \

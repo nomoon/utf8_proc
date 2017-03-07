@@ -5,105 +5,147 @@ module UTF8Proc
   module Benchmark
     module_function
 
+    # Various different normalizations of Unicode characters.
+    @test_arr = ["quick", "brown", "fox", "jumped", "over", "lazy", "dog",
+                 "QUICK", "BROWN", "FOX", "JUMPED", "OVER", "LAZY", "DOG",
+                 "\u{03D3}", "\u{03D2 0301}", "\u{038E}", "\u{03A5 0301}",
+                 "\u{03D4}", "\u{03D2 0308}", "\u{03AB}", "\u{03A5 0308}",
+                 "\u{1E9B}", "\u{017F 0307}", "\u{1E61}", "\u{0073 0307}",
+                 "\u{1D160}", "\u{1D158 1D165 1D16E}",
+                 "\u{1F82}", "\u{03B1 0313 0300 0345}",
+                 "\u{FDFA}", "\u{0635 0644 0649 0020 0627 0644 0644 0647}" \
+                 "\u{0020 0639 0644 064A 0647 0020 0648 0633 0644 0645}"] * 2
+    @test_arr.concat([" "] * (@test_arr.length / 3))
+    @test_strings = Array.new(20) { @test_arr.sample(15).join("").freeze }
+
     # Runs the benchmark and displays the results.
-    def run # rubocop:disable MethodLength
+    # @param time [Integer] number of seconds to run each test
+    # @param warmup [Integer] number of seconds to warm-up each test
+    # @param tests [Array<Symbol>] normalization forms for the test
+    def run(time = 10, warmup = 2, tests = %i[nfc nfd nfkc nfkd nfkc_cf])
       require "benchmark/ips"
       require "unf"
-      # Various different normalizations of Unicode characters.
-      test_arr = ["quick", "brown", "fox", "jumped", "over", "lazy", "dog",
-                  "QUICK", "BROWN", "FOX", "JUMPED", "OVER", "LAZY", "DOG",
-                  "\u{03D3}", "\u{03D2 0301}", "\u{038E}", "\u{03A5 0301}",
-                  "\u{03D4}", "\u{03D2 0308}", "\u{03AB}", "\u{03A5 0308}",
-                  "\u{1E9B}", "\u{017F 0307}", "\u{1E61}", "\u{0073 0307}",
-                  "\u{1D160}", "\u{1D158 1D165 1D16E}",
-                  "\u{1F82}", "\u{03B1 0313 0300 0345}",
-                  "\u{FDFA}", "\u{0635 0644 0649 0020 0627 0644 0644 0647}" \
-                  "\u{0020 0639 0644 064A 0647 0020 0648 0633 0644 0645}"] * 2
-      test_arr.concat([" "] * (test_arr.length / 3))
+      tests = Array(tests)
+      puts "\nBenchmark strings:\n\n * #{@test_strings.join("\n * ")}\n\n"
 
-      test_strings = Array.new(20) { test_arr.sample(15).join("") }
-      puts "\nBenchmark strings:\n\n * #{test_strings.join("\n * ")}\n\n"
+      tests.each { |form| send("run_#{form}".to_sym, time, warmup) }
+      true
+    end
 
+    def run_nfc(time, warmup)
       ::Benchmark.ips do |x|
-        x.config(time: 10, warmup: 2)
+        x.config(time: time, warmup: warmup)
         x.report("UNF NFC") do
-          UNF::Normalizer.normalize(test_strings.sample, :nfc)
+          UNF::Normalizer.normalize(@test_strings.sample, :nfc)
         end
 
         x.report("UTF8Proc NFC") do
-          UTF8Proc.normalize(test_strings.sample, :nfc)
+          UTF8Proc.normalize(@test_strings.sample, :nfc)
+        end
+
+        x.report("UTF8Proc NFCQC") do
+          UTF8Proc.normalize(@test_strings.sample, :nfcqc)
         end
 
         x.report("Ruby NFC") do
-          test_strings.sample.unicode_normalize(:nfc)
+          @test_strings.sample.unicode_normalize(:nfc)
         end
         x.compare!
       end
+    end
 
+    def run_nfd(time, warmup)
       ::Benchmark.ips do |x|
-        x.config(time: 5, warmup: 1)
+        x.config(time: time, warmup: warmup)
         x.report("UNF NFD") do
-          UNF::Normalizer.normalize(test_strings.sample, :nfd)
+          UNF::Normalizer.normalize(@test_strings.sample, :nfd)
         end
 
         x.report("UTF8Proc NFD") do
-          UTF8Proc.normalize(test_strings.sample, :nfd)
+          UTF8Proc.normalize(@test_strings.sample, :nfd)
         end
 
         x.report("Ruby NFD") do
-          test_strings.sample.unicode_normalize(:nfd)
+          @test_strings.sample.unicode_normalize(:nfd)
         end
         x.compare!
       end
+    end
 
+    def run_nfkc(time, warmup)
       ::Benchmark.ips do |x|
-        x.config(time: 10, warmup: 2)
+        x.config(time: time, warmup: warmup)
         x.report("UNF NFKC") do
-          UNF::Normalizer.normalize(test_strings.sample, :nfkc)
+          UNF::Normalizer.normalize(@test_strings.sample, :nfkc)
         end
 
         x.report("UTF8Proc NFKC") do
-          UTF8Proc.normalize(test_strings.sample, :nfkc)
+          UTF8Proc.normalize(@test_strings.sample, :nfkc)
         end
 
         x.report("Ruby NFKC") do
-          test_strings.sample.unicode_normalize(:nfkc)
+          @test_strings.sample.unicode_normalize(:nfkc)
         end
         x.compare!
       end
+    end
 
+    def run_nfkd(time, warmup)
       ::Benchmark.ips do |x|
-        x.config(time: 10, warmup: 2)
+        x.config(time: time, warmup: warmup)
         x.report("UNF NFKD") do
-          UNF::Normalizer.normalize(test_strings.sample, :nfkd)
+          UNF::Normalizer.normalize(@test_strings.sample, :nfkd)
         end
 
         x.report("UTF8Proc NFKD") do
-          UTF8Proc.normalize(test_strings.sample, :nfkd)
+          UTF8Proc.normalize(@test_strings.sample, :nfkd)
         end
 
         x.report("Ruby NFKD") do
-          test_strings.sample.unicode_normalize(:nfkd)
+          @test_strings.sample.unicode_normalize(:nfkd)
         end
         x.compare!
       end
+    end
 
+    def run_nfkc_cf(time, warmup)
       ::Benchmark.ips do |x|
-        x.config(time: 10, warmup: 2)
-        x.report("UNF NFKC with .downcase") do
-          UNF::Normalizer.normalize(test_strings.sample, :nfkc).downcase
-        end
+        x.config(time: time, warmup: warmup)
 
         x.report("UTF8Proc NFKC_CF") do
-          UTF8Proc.normalize(test_strings.sample, :nfkc_cf)
+          UTF8Proc.normalize(@test_strings.sample, :nfkc_cf)
         end
 
-        x.report("Ruby NFKC with .downcase") do
-          test_strings.sample.unicode_normalize(:nfkc).downcase
+        x.report("UNF NFKC_CF") do
+          UNF::Normalizer.normalize(@test_strings.sample, :nfkc_cf)
+        end
+
+        if RUBY_VERSION >= "2.4"
+          # x.report("UNF NFKC.downcase!(:fold)") do
+          #   UNF::Normalizer.normalize(@test_strings.sample, :nfkc).downcase!(:fold)
+          # end
+
+          x.report("Ruby NFKC.downcase!(:fold)") do
+            @test_strings.sample.unicode_normalize(:nfkc).downcase!(:fold)
+          end
+        else
+          warn "WARNING: It's not certain that your String#downcase! method " \
+               "is Unicode-aware.\n" \
+               "         (This usually requires Ruby 2.4 and up.)\n" \
+               "         Falling back to #downcase! from #downcase!(:fold)"
+
+          # x.report("UNF NFKC.downcase!") do
+          #   UNF::Normalizer.normalize(@test_strings.sample, :nfkc).downcase!
+          # end
+
+          x.report("Ruby NFKC.downcase!") do
+            @test_strings.sample.unicode_normalize(:nfkc).downcase!
+          end
         end
         x.compare!
       end
-      true
     end
+
+    private_class_method :run_nfc, :run_nfd, :run_nfkc, :run_nfkd, :run_nfkc_cf
   end
 end
