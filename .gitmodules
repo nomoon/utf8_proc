@@ -1,3 +1,3 @@
 [submodule "vendor/libutf8proc"]
 	path = vendor/libutf8proc
-url=https://github.com/nomoon/utf8_proc.git
+url=https://github.com/nomoon/utf8proc.git
