@@ -73,7 +73,6 @@ class UTF8ProcTest < Minitest::Test
 
   # Test UTF8Proc.normalize against Unicode 9.0 Normalization Data
   normalization_file = File.join(File.dirname(__FILE__), "NormalizationTest.txt")
-  forms = %i[nfc nfd nfkc nfkd]
   part = 0
   File.open(normalization_file, "r").each_line do |line|
     # Skip line if it's only a comment or header
@@ -89,14 +88,13 @@ class UTF8ProcTest < Minitest::Test
     end
 
     codes = tests[0].codepoints.map! { |c| "%04x" % c }.join("_")
-    forms.each_with_index do |form, i|
-      src_str = tests[0]
-      cor_str = tests[i + 1]
-      method_name = "test_normalization_data_p#{part}_#{codes}_#{form}"
-      define_method(method_name) do
-        skip if jruby?
-        assert_equal cor_str, ::UTF8Proc.public_send(form, src_str)
-      end
+    method_name = "test_normalization_data_p#{part}_#{codes}"
+    define_method(method_name) do
+      skip if jruby?
+      assert_equal tests[1], ::UTF8Proc.NFC(tests[0]), "NFC"
+      assert_equal tests[2], ::UTF8Proc.NFD(tests[0]), "NFD"
+      assert_equal tests[3], ::UTF8Proc.NFKC(tests[0]), "NFKC"
+      assert_equal tests[4], ::UTF8Proc.NFKD(tests[0]), "NFKD"
     end
   end
 
