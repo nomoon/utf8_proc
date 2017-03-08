@@ -72,10 +72,12 @@ class UTF8ProcTest < Minitest::Test
   end
 
   # Test UTF8Proc.normalize against Unicode 9.0 Normalization Data
-  normalization_file = File.join(File.dirname(__FILE__), "NormalizationTest.txt")
+  normalization_file = File.join(File.dirname(__FILE__),
+                                 "NormalizationTest.txt")
   forms = %i[nfc nfd nfkc nfkd]
   part = 0
-  File.open(normalization_file, "r").each_line do |line|
+  IO.foreach(normalization_file) do |line|
+    break if jruby?
     # Skip line if it's only a comment or header
     next if line.match(/^#|^@Part([0-9]+)/) do |m|
       part = m[1].to_i if m[1]
@@ -94,20 +96,20 @@ class UTF8ProcTest < Minitest::Test
       cor_str = tests[i + 1]
       method_name = "test_normalization_data_p#{part}_#{codes}_#{form}"
       define_method(method_name) do
-        skip if jruby?
         assert_equal cor_str, ::UTF8Proc.public_send(form, src_str)
       end
     end
   end
 
   # Test NFKC_CF against a pile of data
-  normalization_file = File.join(File.dirname(__FILE__), "nfkc-casefold-test.txt")
-  File.open(normalization_file, "r").each_slice(3).with_index do |lines, i|
+  cf_normalization_file = File.join(File.dirname(__FILE__),
+                                    "nfkc-casefold-test.txt")
+  IO.foreach(cf_normalization_file).each_slice(3).with_index do |lines, i|
+    break if jruby?
     src_str = lines[0].chomp
     cor_str = lines[1].chomp
     method_name = "test_normalization_data_nfkc_cf_#{i + 1}"
     define_method(method_name) do
-      skip if jruby?
       assert_equal cor_str, ::UTF8Proc.NFKC_CF(src_str)
     end
   end
@@ -183,6 +185,7 @@ class UTF8ProcTest < Minitest::Test
   # NFKC_CF (Case-folding)
 
   def test_to_nfkc_cf_result
+    skip if jruby?
     assert_equal @ustr_nfkc_cf, ::UTF8Proc.nfkc_cf(@ustr_denormal)
   end
 
@@ -220,6 +223,7 @@ class UTF8ProcTest < Minitest::Test
   end
 
   def test_to_norm_nfkc_cf_result
+    skip if jruby?
     assert_equal @ustr_nfkc_cf, ::UTF8Proc.normalize(@ustr_denormal, :nfkc_cf)
   end
 
