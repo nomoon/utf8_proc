@@ -43,10 +43,6 @@ module UTF8Proc
           UTF8Proc.normalize(@test_strings.sample, :nfc)
         end
 
-        x.report("UTF8Proc NFCQC") do
-          UTF8Proc.normalize(@test_strings.sample, :nfcqc)
-        end
-
         x.report("Ruby NFC") do
           @test_strings.sample.unicode_normalize(:nfc)
         end
@@ -121,10 +117,6 @@ module UTF8Proc
         end
 
         if RUBY_VERSION >= "2.4"
-          # x.report("UNF NFKC.downcase!(:fold)") do
-          #   UNF::Normalizer.normalize(@test_strings.sample, :nfkc).downcase!(:fold)
-          # end
-
           x.report("Ruby NFKC.downcase!(:fold)") do
             @test_strings.sample.unicode_normalize(:nfkc).downcase!(:fold)
           end
@@ -133,10 +125,6 @@ module UTF8Proc
                "is Unicode-aware.\n" \
                "         (This usually requires Ruby 2.4 and up.)\n" \
                "         Falling back to #downcase! from #downcase!(:fold)"
-
-          # x.report("UNF NFKC.downcase!") do
-          #   UNF::Normalizer.normalize(@test_strings.sample, :nfkc).downcase!
-          # end
 
           x.report("Ruby NFKC.downcase!") do
             @test_strings.sample.unicode_normalize(:nfkc).downcase!
