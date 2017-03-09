@@ -53,24 +53,6 @@ class UTF8ProcTest < Minitest::Test
     refute_empty ::UTF8Proc::LIBRARY_VERSION
   end
 
-  # Some UNF tests so that we can feel better about ourselves
-
-  def test_unf_nfc
-    assert_equal @ustr_nfc, UNF::Normalizer.normalize(@ustr_denormal, :nfc)
-  end
-
-  def test_unf_nfd
-    assert_equal @ustr_nfd, UNF::Normalizer.normalize(@ustr_denormal, :nfd)
-  end
-
-  def test_unf_nfkc
-    assert_equal @ustr_nfkc, UNF::Normalizer.normalize(@ustr_denormal, :nfkc)
-  end
-
-  def test_unf_nfkd
-    assert_equal @ustr_nfkd, UNF::Normalizer.normalize(@ustr_denormal, :nfkd)
-  end
-
   # Test UTF8Proc.normalize against Unicode 9.0 Normalization Data
   normalization_file = File.join(File.dirname(__FILE__),
                                  "NormalizationTest.txt")
