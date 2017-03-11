@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.0"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(bin|test|spec|features)/})
+    f.match(%r{^(?:bin|test|spec|features)/|^\.[\w_\.\-]+$})
   end
   spec.files += ["vendor/libutf8proc/LICENSE.md",
                  "vendor/libutf8proc/utf8proc.c",
